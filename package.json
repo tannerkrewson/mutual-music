@@ -1,6 +1,6 @@
 {
 	"name": "spotify-in-common",
-	"version": "2.0",
+	"version": "0.1.0",
 	"homepage": "http://www.tannerkrewson.com/sic/",
 	"dependencies": {
 		"gh-pages": "^1.1.0",

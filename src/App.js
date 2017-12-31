@@ -1,20 +1,29 @@
 import React, {
 	Component
 } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Intro from './components/Intro';
+import FriendSelector from './components/FriendSelector';
 
 class App extends Component {
 	render() {
+		const box = {
+			'border-style': 'solid',
+			'background-color': 'white'
+		};
 		return (
-            <div className="App">
-            	<header className="App-header">
-            		<img src={logo} className="App-logo" alt="logo" />
-            		<h1 className="App-title">Welcome to React</h1>
-            	</header>
-            	<p className="App-intro">
-            		To get started, edit <code>src/App.js</code> and save to reload.
-            	</p>
+            <div className="App container">
+				<div className="row" style={box}>
+					<div className="col-md-12">
+						<Intro style={box} />
+					</div>
+				</div>
+				<div className="row">
+					<div className="col-md-6" style={box}>
+						<FriendSelector />
+					</div>
+					<div className="col-md-6">
+					</div>
+				</div>
             </div>
         );
 	}

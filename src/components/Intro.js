@@ -9,7 +9,9 @@ class Intro extends Component {
 			padding: '20px'
 		};
 		const right = {
-			'text-align': 'center'
+			'display': 'flex',
+			'justify-content': 'center',
+			'align-items': 'center'
 		};
 		return (
 			<div className="row">
@@ -22,8 +24,10 @@ class Intro extends Component {
 					</p>
 	        	</header>
 				<div className="col-md-6" style={right}>
-					<button type="button" className="btn btn-success">Login to Spotify</button>
-					<p>Login to get started.</p>
+					<div>
+						<button type="button" className="btn btn-success" onClick={this.props.onLogin}>Login to Spotify</button>
+						<p>Login to get started.</p>
+					</div>
 				</div>
 			</div>
         );

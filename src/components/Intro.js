@@ -1,6 +1,7 @@
 import React, {
 	Component
 } from 'react';
+import SpotifyLogin from './SpotifyLogin';
 
 class Intro extends Component {
 	render() {
@@ -24,10 +25,7 @@ class Intro extends Component {
 					</p>
 	        	</header>
 				<div className="col-md-6" style={right}>
-					<div>
-						<button type="button" className="btn btn-success" onClick={this.props.onLogin}>Login to Spotify</button>
-						<p>Login to get started.</p>
-					</div>
+					<SpotifyLogin isLoggedIn={this.props.isLoggedIn} />
 				</div>
 			</div>
         );

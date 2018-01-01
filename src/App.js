@@ -9,6 +9,7 @@ import spotify from './utils/spotify';
 class App extends Component {
 	render() {
 		var spotifyHash = spotify.checkForAccessToken();
+		const isLoggedIn = !!spotifyHash;
 
 		const box = {
 			'border-style': 'solid',
@@ -18,12 +19,12 @@ class App extends Component {
             <div className="App container">
 				<div className="row" style={box}>
 					<div className="col-md-12">
-						<Intro onLogin={spotify.login} style={box} />
+						<Intro isLoggedIn={isLoggedIn} style={box} />
 					</div>
 				</div>
 				<div className="row">
 					<div className="col-md-6" style={box}>
-						{spotifyHash &&
+						{isLoggedIn &&
 							<FriendSelector />
 						}
 					</div>

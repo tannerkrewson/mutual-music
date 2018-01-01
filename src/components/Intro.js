@@ -10,9 +10,9 @@ class Intro extends Component {
 			padding: '20px'
 		};
 		const right = {
-			'display': 'flex',
-			'justify-content': 'center',
-			'align-items': 'center'
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
 		};
 		return (
 			<div className="row">

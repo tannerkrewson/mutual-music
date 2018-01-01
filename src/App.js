@@ -29,8 +29,8 @@ class App extends Component {
 	}
 	render() {
 		const box = {
-			'border-style': 'solid',
-			'background-color': 'white'
+			borderStyle: 'solid',
+			backgroundColor: 'white'
 		};
 		return (
             <div className="App container">

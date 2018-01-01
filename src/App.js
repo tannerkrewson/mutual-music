@@ -4,13 +4,30 @@ import React, {
 import Intro from './components/Intro';
 import FriendSelector from './components/FriendSelector';
 
-import spotify from './utils/spotify';
+import spotifyUtils from './utils/spotify';
+import SpotifyWebAPI from 'spotify-web-api-js';
 
 class App extends Component {
+	constructor(props) {
+		super(props);
+		var spotifyHash = spotifyUtils.checkForAccessToken();
+		var spotifyApi;
+		if (spotifyHash) {
+			spotifyApi = new SpotifyWebAPI();
+			spotifyApi.setAccessToken(spotifyHash.access_token);
+			var self = this;
+			spotifyApi.getMe().then(function(data) {
+				self.setState({
+					user: data
+				});
+			});
+		}
+		this.state = {
+			spotify: spotifyApi,
+			isLoggedIn: !!spotifyHash
+		};
+	}
 	render() {
-		var spotifyHash = spotify.checkForAccessToken();
-		const isLoggedIn = !!spotifyHash;
-
 		const box = {
 			'border-style': 'solid',
 			'background-color': 'white'
@@ -19,12 +36,12 @@ class App extends Component {
             <div className="App container">
 				<div className="row" style={box}>
 					<div className="col-md-12">
-						<Intro isLoggedIn={isLoggedIn} style={box} />
+						<Intro isLoggedIn={this.state.isLoggedIn} user={this.state.user} style={box} />
 					</div>
 				</div>
 				<div className="row">
 					<div className="col-md-6" style={box}>
-						{isLoggedIn &&
+						{this.state.isLoggedIn &&
 							<FriendSelector />
 						}
 					</div>

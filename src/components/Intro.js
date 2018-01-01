@@ -25,7 +25,7 @@ class Intro extends Component {
 					</p>
 	        	</header>
 				<div className="col-md-6" style={right}>
-					<SpotifyLogin isLoggedIn={this.props.isLoggedIn} />
+					<SpotifyLogin isLoggedIn={this.props.isLoggedIn} user={this.props.user} />
 				</div>
 			</div>
         );

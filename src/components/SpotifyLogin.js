@@ -2,13 +2,14 @@ import React, {
 	Component
 } from 'react';
 
-import spotify from '../utils/spotify';
+import spotifyUtils from '../utils/spotify';
+import SpotifyUser from './SpotifyUser';
 
 class SpotifyLogin extends Component {
 	render() {
 		var notLoggedIn = (
 			<div>
-				<button type="button" className="btn btn-success" onClick={spotify.login}>Login to Spotify</button>
+				<button type="button" className="btn btn-success" onClick={spotifyUtils.login}>Login to Spotify</button>
 				<p>Login to get started.</p>
 			</div>
 
@@ -16,6 +17,7 @@ class SpotifyLogin extends Component {
 		var loggedIn = (
 			<div>
 				<p>Logged in as</p>
+				<SpotifyUser user={this.props.user} />
 			</div>
 		);
 		return this.props.isLoggedIn ? loggedIn : notLoggedIn;

@@ -8,8 +8,7 @@ class FriendSelector extends Component {
 		super(props);
 		this.state = {
 			value: '',
-			userID: '',
-			selectedUser: this.props.selectedUser
+			userID: ''
 		};
 
 		this.handleChange = this.handleChange.bind(this);
@@ -39,11 +38,11 @@ class FriendSelector extends Component {
 	}
 
 	render() {
-		if (this.state.selectedUser) {
+		if (this.props.selectedUser) {
 			return (
 				<div>
-					<p>Logged in as</p>
-					<SpotifyUser user={this.state.selectedUser} />
+					<p>Selected friend: </p>
+					<SpotifyUser user={this.props.selectedUser} />
 				</div>
 			);
 		} else {

@@ -27,6 +27,17 @@ class App extends Component {
 			isLoggedIn: !!spotifyHash
 		};
 	}
+	onFriendSelected(userID) {
+		var self = this;
+		if (!this.state.friend) {
+			this.state.spotify.getUser(userID).then(function(data) {
+				console.log(data);
+				self.setState({
+					friend: data
+				});
+			});
+		}
+	}
 	render() {
 		const box = {
 			borderStyle: 'solid',
@@ -42,7 +53,7 @@ class App extends Component {
 				<div className="row">
 					<div className="col-md-6" style={box}>
 						{this.state.isLoggedIn &&
-							<FriendSelector />
+							<FriendSelector onValidUserId={this.onFriendSelected.bind(this)} />
 						}
 					</div>
 					<div className="col-md-6">

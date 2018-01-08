@@ -1,7 +1,7 @@
 {
-	"name": "spotify-in-common",
+	"name": "mutual-music",
 	"version": "0.1.0",
-	"homepage": "http://www.tannerkrewson.com/sic/",
+	"homepage": "http://www.tannerkrewson.com/mutual-music/",
 	"dependencies": {
 		"gh-pages": "^1.1.0",
 		"react": "^16.2.0",

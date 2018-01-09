@@ -29,7 +29,7 @@ function checkForAccessToken() {
 }
 
 function login() {
-    var scopes = 'playlist-read-private playlist-modify-public';
+    var scopes = 'playlist-read-private playlist-modify-public user-library-read';
 	window.location.href = "https://accounts.spotify.com/authorize" +
 		"?client_id=" + SPOTIFY_CLIENT_ID +
 		"&response_type=token" +

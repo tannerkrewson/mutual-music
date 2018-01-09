@@ -2,10 +2,12 @@
 function getListOfMutualSongs (spotifyApi, otherUserID) {
 	var promiseList = [];
 	promiseList.push(getMapOfAllSongs(spotifyApi));
+	promiseList.push(getUserSavedTracks(spotifyApi));
 	promiseList.push(getListOfSongsByUserID(spotifyApi, otherUserID));
 	return Promise.all(promiseList).then(function (data) {
 		var userSongMap = data[0];
-		var friendSongMap = data[1];
+		var friendSongMap = data[2];
+		concatMaps(userSongMap, data[1]);
 		return getMutualMap(userSongMap, friendSongMap);
 	});
 }
@@ -46,6 +48,37 @@ function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
 	return Promise.all(promiseList).then(function (data) {
 		return songs;
 	});
+	function addSongsToMap (data) {
+		for (var song of data.items) {
+			songs.set(song.track.id, true);
+		}
+	}
+}
+
+function getUserSavedTracks (spotifyApi) {
+	const limit = 50;
+	var songs = new Map();
+
+	// get them once first, to get the total,
+	// then make the required number of requests
+	// to reach that total
+	return spotifyApi.getMySavedTracks({ limit }).then(function (res) {
+		addSongsToMap(res);
+		if (res.total > limit) {
+			var promiseList = [];
+			for (var offset = limit; offset < res.total; offset += limit) {
+				promiseList.push(spotifyApi.getMySavedTracks({ offset, limit })
+					.then(addSongsToMap, function (err) {
+						console.error(err);
+					})
+				);
+			}
+			return Promise.all(promiseList).then(function (data) {
+				return songs;
+			});
+		}
+	});
+
 	function addSongsToMap (data) {
 		for (var song of data.items) {
 			songs.set(song.track.id, true);

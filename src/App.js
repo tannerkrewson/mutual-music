@@ -6,6 +6,7 @@ import FriendSelector from './components/FriendSelector';
 import Generator from './components/Generator';
 
 import spotifyUtils from './utils/spotify';
+import mutual from './utils/mutual';
 import SpotifyWebAPI from 'spotify-web-api-js';
 
 class App extends Component {
@@ -36,11 +37,20 @@ class App extends Component {
 				self.setState({
 					friend: data
 				});
+				self.findCount();
 			});
 		}
 	}
 	findCount() {
-
+		var self = this;
+		mutual.getListOfMutualSongs(this.state.spotify, this.state.friend.id)
+			.then(function (songs) {
+				self.setState({
+					mutualSongs: songs,
+					countResult: songs.size,
+					isLoading: false
+				});
+			});
 	}
 	makePlaylist() {
 

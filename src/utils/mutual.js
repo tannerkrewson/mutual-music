@@ -60,16 +60,26 @@ function concatMaps (map, mapToAdd) {
 }
 
 function getMutualMap (map1, map2) {
-	var resMap = new Map();
+	var res = [];
 	for (const song of map1) {
 		// if the other map has the key
 		if (map2.has( song[0] )) {
-			resMap.set(song[0], true);
+			res.push('spotify:track:' + song[0]);
 		}
 	}
-	return resMap;
+	return res;
+}
+
+function addSongsToPlaylist (userId, playlistId, songList, spotifyApi) {
+	var promiseList = [];
+	for (var offset = 0; offset < songList.length; offset += 100) {
+		var songsToAdd = songList.slice(offset, offset + 100);
+		console.log(songsToAdd);
+		promiseList.push(spotifyApi.addTracksToPlaylist(userId, playlistId, songsToAdd));
+	}
+	return Promise.all(promiseList);
 }
 
 
 
-module.exports = {getListOfMutualSongs};
+module.exports = {getListOfMutualSongs, addSongsToPlaylist};

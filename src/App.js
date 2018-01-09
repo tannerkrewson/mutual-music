@@ -53,16 +53,22 @@ class App extends Component {
 			});
 	}
 	makePlaylist() {
+		this.setState({
+			isLoading: true
+		});
 		var self = this;
 		console.log(this.state);
 		this.state.spotify.createPlaylist(this.state.user.id, {
 			name: 'me and ' + this.state.friend.display_name.toLowerCase() + '\'s mutual songs',
 			description: 'Made with Mutual Music: ' + window.location.href
 		}).then(function(playlist) {
+			console.log(playlist);
+			self.setState({
+				isLoading: false,
+				playlistResult: playlist.external_urls.spotify
+			});
 			return mutual.addSongsToPlaylist(self.state.user.id, playlist.id, self.state.mutualSongs, self.state.spotify);
-		}).then(function() {
-			alert('done did it!!');
-		});
+		})
 	}
 	render() {
 		const box = {

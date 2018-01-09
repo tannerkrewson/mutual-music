@@ -11,6 +11,15 @@ class Generator extends Component {
 				</div>
 			);
 		}
+		if (this.props.playlistResult) {
+			return (
+				<div>
+					<h2>Playlist created!</h2>
+					<p>It should now be in your Spotify playlist list.</p>
+					<a href={this.props.playlistResult}>{this.props.playlistResult}</a>
+				</div>
+			);
+		}
 		if (this.props.countResult) {
 			return (
 				<div>
@@ -21,15 +30,6 @@ class Generator extends Component {
 					</h2>
 					<label>Wanna make it into a playlist??</label>
 					<button type="button" className="btn btn-success" onClick={this.props.onMakePlaylist}>Do it</button>
-				</div>
-			);
-		}
-		if (this.props.playlistResult) {
-			return (
-				<div>
-					<h2>Playlist created!</h2>
-					<p>It should now be in your Spotify playlist list.</p>
-					<a href={this.props.playlistResult}>{this.props.playlistResult}</a>
 				</div>
 			);
 		}

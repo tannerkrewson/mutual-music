@@ -19,11 +19,9 @@ function getMapOfAllSongs(spotifyApi) {
 function getListOfSongsByUserID (spotifyApi, otherUserID) {
 	return spotifyApi.getUserPlaylists(otherUserID).then(function(data) {
 		var promiseList = [];
-		var count = 0;
 		for (var pl of data.items) {
+			//const wasCreatedByThisUser = pl.owner.id === otherUserID || pl.owner.id === spotifyApi.id;
 			promiseList.push(getSongsOfPlaylist(pl.owner.id, pl.id, pl.tracks.total, spotifyApi));
-			count++
-			if (count >= 5) break;
 		}
 		return Promise.all(promiseList).then(function (data) {
 			var totalMap = data[0];
@@ -50,7 +48,9 @@ function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
 	});
 	function addSongsToMap (data) {
 		for (var song of data.items) {
-			songs.set(song.track.id, true);
+			if (song.track.id) {
+				songs.set(song.track.id, true);
+			}
 		}
 	}
 }
@@ -81,7 +81,9 @@ function getUserSavedTracks (spotifyApi) {
 
 	function addSongsToMap (data) {
 		for (var song of data.items) {
-			songs.set(song.track.id, true);
+			if (song.track.id) {
+				songs.set(song.track.id, true);
+			}
 		}
 	}
 }
@@ -96,7 +98,7 @@ function getMutualMap (map1, map2) {
 	var res = [];
 	for (const song of map1) {
 		// if the other map has the key
-		if (map2.has( song[0] )) {
+		if (song[0] && map2.has( song[0] )) {
 			res.push('spotify:track:' + song[0]);
 		}
 	}

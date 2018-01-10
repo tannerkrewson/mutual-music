@@ -22,6 +22,7 @@ class App extends Component {
 				self.setState({
 					user: data
 				});
+				spotifyApi.id = data.id;
 			});
 		}
 		this.state = {

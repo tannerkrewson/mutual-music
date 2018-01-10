@@ -32,6 +32,14 @@ class Generator extends Component {
 					<button type="button" className="btn btn-success" onClick={this.props.onMakePlaylist}>Do it</button>
 				</div>
 			);
+		} else if (this.props.countResult === 0) {
+			return (
+				<div>
+					<h2>
+						You guys don't have any songs in common. ;(
+					</h2>
+				</div>
+			);
 		}
 		return (<p>Error</p>);
 	}

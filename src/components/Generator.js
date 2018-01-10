@@ -26,7 +26,7 @@ class Generator extends Component {
 					<h2>
 						You guys have
 						<span>{this.props.countResult}</span>
-						songs in common!
+						mutual songs!
 					</h2>
 					<label>Wanna make it into a playlist??</label>
 					<button type="button" className="btn btn-success" onClick={this.props.onMakePlaylist}>Do it</button>
@@ -36,7 +36,7 @@ class Generator extends Component {
 			return (
 				<div>
 					<h2>
-						You guys don't have any songs in common. ;(
+						You guys don't have any mutual songs. ;(
 					</h2>
 				</div>
 			);

@@ -58,12 +58,10 @@ class App extends Component {
 			isLoading: true
 		});
 		var self = this;
-		console.log(this.state);
 		this.state.spotify.createPlaylist(this.state.user.id, {
 			name: 'me and ' + this.state.friend.display_name.toLowerCase() + '\'s mutual songs',
 			description: 'Made with Mutual Music: ' + window.location.href
 		}).then(function(playlist) {
-			console.log(playlist);
 			self.setState({
 				isLoading: false,
 				playlistResult: playlist.external_urls.spotify
@@ -74,7 +72,9 @@ class App extends Component {
 	render() {
 		const box = {
 			borderStyle: 'solid',
-			backgroundColor: 'white'
+			backgroundColor: 'white',
+			padding: '12px',
+			borderRadius: '24px'
 		};
 		return (
             <div className="App container">
@@ -88,24 +88,24 @@ class App extends Component {
 					</div>
 				</div>
 				<div className="row">
-					<div className="col-md-6" style={box}>
-						{this.state.isLoggedIn &&
-							<FriendSelector
-								onValidUserId={this.onFriendSelected.bind(this)}
-								selectedUser={this.state.friend}
-							/>
-						}
-					</div>
-					<div className="col-md-6" style={box}>
-						{this.state.friend &&
+					{this.state.isLoggedIn &&
+						<div className="col-md-6" style={box}>
+								<FriendSelector
+									onValidUserId={this.onFriendSelected.bind(this)}
+									selectedUser={this.state.friend}
+								/>
+						</div>
+					}
+					{this.state.friend &&
+						<div className="col-md-6" style={box}>
 							<Generator
 								countResult={this.state.countResult}
 								playlistResult={this.state.playlistResult}
 								onMakePlaylist={this.makePlaylist.bind(this)}
 								isLoading={this.state.isLoading}
 							/>
-						}
-					</div>
+						</div>
+					}
 				</div>
             </div>
         );

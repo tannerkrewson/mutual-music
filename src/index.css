@@ -2,5 +2,35 @@ body {
     margin: 0;
     padding: 0;
     font-family: sans-serif;
-    background-color: #111;
+    background-color: #313131;
+    font-family: 'Lato', sans-serif;
+}
+
+.root {
+    width: 80%;
+    max-width: 960px;
+}
+
+.App {
+    color: white;
+    position: relative;
+    margin: 10% auto 0 auto;
+    max-width: 500px;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    background: #222222;
+}
+
+.App::after {
+    position: absolute;
+    top: -4px; bottom: -4px;
+    left: -4px; right: -4px;
+    background: linear-gradient(145deg,#00DDFF,#FF44EE);
+    content: '';
+    z-index: -1;
+    border-radius: 32px;
+}
+
+.App-title {
+    font-weight: bolder;
 }

@@ -18,7 +18,7 @@ class Intro extends Component {
 			<div className="row">
 				<header className="col-md-6" style={header}>
 	        		<h1 className="App-title">
-						MUTUAL MUSIC
+						<span role="img" aria-label="">🎧</span> mutual music
 					</h1>
 					<p className="lead">
 						Generate a playlist of songs that you and a friend both love.

@@ -10,7 +10,6 @@ class SpotifyLogin extends Component {
 		var notLoggedIn = (
 			<div>
 				<button type="button" className="btn btn-success" onClick={spotifyUtils.login}>Login to Spotify</button>
-				<p>Login to get started.</p>
 			</div>
 
 		);

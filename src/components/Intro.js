@@ -6,17 +6,17 @@ import SpotifyLogin from './SpotifyLogin';
 class Intro extends Component {
 	render() {
 		const header = {
-			height: '200px',
 			padding: '20px'
 		};
 		const right = {
 			display: 'flex',
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			paddingBottom: '20px'
 		};
 		return (
-			<div className="row">
-				<header className="col-md-6" style={header}>
+			<div>
+				<header style={header}>
 	        		<h1 className="App-title">
 						<span role="img" aria-label="">🎧</span> mutual music
 					</h1>
@@ -24,7 +24,7 @@ class Intro extends Component {
 						Generate a playlist of songs that you and a friend both love.
 					</p>
 	        	</header>
-				<div className="col-md-6" style={right}>
+				<div style={right}>
 					<SpotifyLogin isLoggedIn={this.props.isLoggedIn} user={this.props.user} />
 				</div>
 			</div>

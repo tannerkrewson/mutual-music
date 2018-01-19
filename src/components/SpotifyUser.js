@@ -2,17 +2,23 @@ import React, {
 	Component
 } from 'react';
 
+const icon = {
+	borderRadius: '50%',
+	height: '48px'
+}
+
+const user = {
+	textAlign: 'center',
+}
+
 class SpotifyUser extends Component {
 	render() {
-		const icon = {
-			borderRadius: '50%',
-			height: '32px'
-		}
 		if (this.props.user) {
 			return (
-				<div>
+				<div style={user}>
 					<img src={this.props.user.images[0].url} style={icon} alt=""/>
-					<span>{this.props.user.display_name}</span>
+					<br/>
+					<span>{this.props.user.display_name.split(" ")[0]}</span>
 				</div>
 			);
 		} else return null;

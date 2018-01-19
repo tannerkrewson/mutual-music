@@ -45,8 +45,6 @@ a {
     transform: rotate(1deg);
 }
 
-@keyframes spin { 100% { transform:rotate(5deg); } }
-
 .App-title {
     font-weight: bolder;
 }

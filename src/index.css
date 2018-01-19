@@ -16,7 +16,7 @@ body {
 }
 
 a {
-    color: DarkTurquoise;
+    color: #00DDFF;
 }
 
 .root {
@@ -32,6 +32,8 @@ a {
     border: 1px solid transparent;
     border-radius: 30px;
     background: #222222;
+    padding: 40px;
+    padding-bottom: 24px;
 }
 
 .App::after {
@@ -50,7 +52,6 @@ a {
 }
 
 footer {
-    padding-bottom: 18px;
     font-size: 14px;
     text-align: center;
 }

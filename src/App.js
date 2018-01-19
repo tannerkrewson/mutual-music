@@ -1,9 +1,11 @@
 import React, {
 	Component
 } from 'react';
-import Intro from './components/Intro';
+import Header from './components/Header';
 import FriendSelector from './components/FriendSelector';
+import TwoFriends from './components/TwoFriends';
 import Generator from './components/Generator';
+import SpotifyLogin from './components/SpotifyLogin';
 
 import spotifyUtils from './utils/spotify';
 import mutual from './utils/mutual';
@@ -70,23 +72,22 @@ class App extends Component {
 		})
 	}
 	render() {
-		const box = {
-			padding: '12px',
-		};
 		return (
             <div className="App container">
-				<div className="row" style={box}>
+				<div className="row">
 					<div className="col-md-12">
-						<Intro
-							isLoggedIn={this.state.isLoggedIn}
-							user={this.state.user}
-							style={box}
-						/>
+						<Header />
+						{!this.state.isLoggedIn &&
+							<SpotifyLogin />
+						}
+						{this.state.isLoggedIn &&
+							<TwoFriends user={this.state.user} friend={this.state.friend} />
+						}
 					</div>
 				</div>
 				<div className="row">
 					{this.state.isLoggedIn &&
-						<div className="col-md-6" style={box}>
+						<div className="col-md-6">
 								<FriendSelector
 									onValidUserId={this.onFriendSelected.bind(this)}
 									selectedUser={this.state.friend}
@@ -94,7 +95,7 @@ class App extends Component {
 						</div>
 					}
 					{this.state.friend &&
-						<div className="col-md-6" style={box}>
+						<div className="col-md-6">
 							<Generator
 								countResult={this.state.countResult}
 								playlistResult={this.state.playlistResult}
@@ -105,9 +106,9 @@ class App extends Component {
 					}
 				</div>
 				<footer>
-					Mutual Music by <a href="http://www.tannerkrewson.com/" target="_blank">Tanner Krewson</a>
+					Mutual Music by <a href="http://www.tannerkrewson.com/" target="_blank" rel="noopener noreferrer">Tanner Krewson</a>
 					<br/>
-					<a href="https://github.com/tannerkrewson/mutual-music" target="_blank">View on GitHub</a>
+					<a href="https://github.com/tannerkrewson/mutual-music" target="_blank" rel="noopener noreferrer">View on GitHub</a>
 				</footer>
             </div>
         );

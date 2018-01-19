@@ -36,13 +36,16 @@ a {
 
 .App::after {
     position: absolute;
-    top: -4px; bottom: -4px;
-    left: -4px; right: -4px;
+    top: -12px; bottom: -12px;
+    left: -12px; right: -12px;
     background: linear-gradient(145deg,#00DDFF,#FF44EE);
     content: '';
     z-index: -1;
     border-radius: 32px;
+    transform: rotate(1deg);
 }
+
+@keyframes spin { 100% { transform:rotate(5deg); } }
 
 .App-title {
     font-weight: bolder;

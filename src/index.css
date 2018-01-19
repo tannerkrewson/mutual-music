@@ -19,7 +19,7 @@ a {
 .App {
     color: white;
     position: relative;
-    margin: 10% auto 0 auto;
+    margin: 10% auto auto auto;
     max-width: 500px;
     border: 1px solid transparent;
     border-radius: 30px;

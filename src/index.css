@@ -6,7 +6,7 @@ body {
 }
 
 .gradient-background {
-  background: radial-gradient(#363636, #282828, #202020);
+  background: radial-gradient(#373737, #282828, #202020);
   background-repeat: no-repeat;
   width: 100%;
   top: 0px;

@@ -1,7 +1,6 @@
 import React, {
 	Component
 } from 'react';
-import SpotifyUser from './SpotifyUser';
 
 class FriendSelector extends Component {
 	constructor(props) {

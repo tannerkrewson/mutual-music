@@ -60,8 +60,12 @@ class App extends Component {
 			isLoading: true
 		});
 		var self = this;
+		var friendName = this.state.friend.id;
+		if (this.state.friend.display_name) {
+			friendName = this.state.friend.display_name.toLowerCase();
+		}
 		this.state.spotify.createPlaylist(this.state.user.id, {
-			name: 'me and ' + this.state.friend.display_name.toLowerCase() + '\'s mutual songs',
+			name: 'me and ' + friendName + '\'s mutual songs',
 			description: 'Made with Mutual Music: ' + window.location.href
 		}).then(function(playlist) {
 			self.setState({

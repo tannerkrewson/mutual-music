@@ -38,29 +38,20 @@ class FriendSelector extends Component {
 	}
 
 	render() {
-		if (this.props.selectedUser) {
-			return (
-				<div>
-					<p>Selected friend: </p>
-					<SpotifyUser user={this.props.selectedUser} />
+		return (
+			<form onSubmit={this.handleSubmit}>
+				<label>Enter the Spotify user id of your friend here: </label>
+				<div className="input-group mb-3">
+					<input
+						type="text"
+						className="form-control"
+						placeholder="e.g. https://open.spotify.com/user/XXXX"
+						value={this.state.value}
+						onChange={this.handleChange}
+					/>
 				</div>
-			);
-		} else {
-			return (
-				<form onSubmit={this.handleSubmit}>
-					<label>Enter the Spotify user id of your friend here: </label>
-					<div className="input-group mb-3">
-						<input
-							type="text"
-							className="form-control"
-							placeholder="e.g. https://open.spotify.com/user/XXXX"
-							value={this.state.value}
-							onChange={this.handleChange}
-						/>
-					</div>
-				</form>
-	        );
-		}
+			</form>
+        );
 	}
 }
 

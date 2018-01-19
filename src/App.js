@@ -83,33 +83,27 @@ class App extends Component {
 						{this.state.isLoggedIn &&
 							<TwoFriends user={this.state.user} friend={this.state.friend} />
 						}
-					</div>
-				</div>
-				<div className="row">
-					{this.state.isLoggedIn &&
-						<div className="col-md-6">
-								<FriendSelector
-									onValidUserId={this.onFriendSelected.bind(this)}
-									selectedUser={this.state.friend}
-								/>
-						</div>
-					}
-					{this.state.friend &&
-						<div className="col-md-6">
+						{this.state.isLoggedIn  && !this.state.friend &&
+							<FriendSelector
+								onValidUserId={this.onFriendSelected.bind(this)}
+								selectedUser={this.state.friend}
+							/>
+						}
+						{this.state.friend &&
 							<Generator
 								countResult={this.state.countResult}
 								playlistResult={this.state.playlistResult}
 								onMakePlaylist={this.makePlaylist.bind(this)}
 								isLoading={this.state.isLoading}
 							/>
-						</div>
-					}
+						}
+						<footer>
+							Mutual Music by <a href="http://www.tannerkrewson.com/" target="_blank" rel="noopener noreferrer">Tanner Krewson</a>
+							<br/>
+							<a href="https://github.com/tannerkrewson/mutual-music" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+						</footer>
+					</div>
 				</div>
-				<footer>
-					Mutual Music by <a href="http://www.tannerkrewson.com/" target="_blank" rel="noopener noreferrer">Tanner Krewson</a>
-					<br/>
-					<a href="https://github.com/tannerkrewson/mutual-music" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-				</footer>
             </div>
         );
 	}

@@ -4,6 +4,11 @@ body {
     font-family: sans-serif;
     background-color: #313131;
     font-family: 'Lato', sans-serif;
+
+}
+
+a {
+    color: DarkTurquoise;
 }
 
 .root {
@@ -33,4 +38,10 @@ body {
 
 .App-title {
     font-weight: bolder;
+}
+
+footer {
+    padding-bottom: 18px;
+    font-size: 14px;
+    text-align: center;
 }

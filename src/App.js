@@ -104,6 +104,11 @@ class App extends Component {
 						</div>
 					}
 				</div>
+				<footer>
+					Mutual Music by <a href="http://www.tannerkrewson.com/" target="_blank">Tanner Krewson</a>
+					<br/>
+					<a href="https://github.com/tannerkrewson/mutual-music" target="_blank">View on GitHub</a>
+				</footer>
             </div>
         );
 	}

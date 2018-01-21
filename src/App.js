@@ -80,7 +80,7 @@ class App extends Component {
             <div className="App container">
 				<div className="row">
 					<div className="col-md-12">
-						<Header />
+						<Header isLoggedIn={this.state.isLoggedIn} />
 						{!this.state.isLoggedIn &&
 							<SpotifyLogin />
 						}

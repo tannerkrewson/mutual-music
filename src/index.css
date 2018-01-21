@@ -32,8 +32,9 @@ a {
     border: 1px solid transparent;
     border-radius: 30px;
     background: #222222;
-    padding: 40px;
-    padding-bottom: 24px;
+    padding: 36px;
+    padding-top: 48px;
+    padding-bottom: 32px;
 }
 
 .App::after {
@@ -45,10 +46,6 @@ a {
     z-index: -1;
     border-radius: 32px;
     transform: rotate(1deg);
-}
-
-.App-title {
-    font-weight: bolder;
 }
 
 footer {

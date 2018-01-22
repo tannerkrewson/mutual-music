@@ -18,7 +18,7 @@ class FriendSelector extends Component {
 		var value = event.target.value;
 		var userID = this.state.userID;
 		if (value.startsWith('https://open.spotify.com/user/')) {
-			userID = value.substring(30, 40);
+			userID = value.substring(30).split('?')[0];
 		} else if (value.startsWith('spotify:user:')) {
 			userID = value.substring(13);
 		}

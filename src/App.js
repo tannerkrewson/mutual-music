@@ -44,6 +44,14 @@ class App extends Component {
 			});
 		}
 	}
+	anotherOne() {
+		this.setState({
+			friend: null,
+			isLoading: false,
+			countResult: null,
+			playlistResult: null
+		});
+	}
 	findCount() {
 		var self = this;
 		mutual.getListOfMutualSongs(this.state.spotify, this.state.friend.id)
@@ -99,6 +107,7 @@ class App extends Component {
 								playlistResult={this.state.playlistResult}
 								onMakePlaylist={this.makePlaylist.bind(this)}
 								isLoading={this.state.isLoading}
+								onReset={this.anotherOne.bind(this)}
 							/>
 						}
 						<footer>

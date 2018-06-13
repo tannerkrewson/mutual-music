@@ -33,35 +33,19 @@ a {
     padding: 36px;
     padding-top: 48px;
     padding-bottom: 32px;
+    border: 1px solid transparent;
+    border-radius: 30px;
 }
-
-@media (min-width: 576px) {
-    .App {
-        border: 1px solid transparent;
-        border-radius: 30px;
-    }
-    .App::after {
-        position: absolute;
-        top: -12px; bottom: -12px;
-        left: -12px; right: -12px;
-        background: linear-gradient(145deg,#00DDFF,#FF44EE);
-        content: '';
-        z-index: -1;
-        border-radius: 32px;
-        transform: rotate(1deg);
-    }
+.App::after {
+    position: absolute;
+    top: -12px; bottom: -12px;
+    left: -12px; right: -12px;
+    background: linear-gradient(145deg,#00DDFF,#FF44EE);
+    content: '';
+    z-index: -1;
+    border-radius: 32px;
+    transform: rotate(1deg);
 }
-
-@media (max-width: 575.98px) {
-    .gradient-background {
-        background: linear-gradient(145deg,#00DDFF,#FF44EE);
-    }
-    .App {
-        box-shadow: 0 0 5px 10px #222222;
-    }
-}
-
-
 
 footer {
     font-size: 14px;

@@ -55,12 +55,19 @@ class App extends Component {
 	findCount() {
 		var self = this;
 		mutual.getListOfMutualSongs(this.state.spotify, this.state.friend.id)
-			.then(function (songs) {
+			.then((songs) => {
+				// success
 				self.setState({
 					mutualSongs: songs,
 					countResult: songs.length,
 					isLoading: false
 				});
+			}, (err) => {
+				// fail
+				self.setState({
+					isLoading: false
+				});
+				console.error(err);
 			});
 	}
 	makePlaylist() {

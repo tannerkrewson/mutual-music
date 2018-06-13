@@ -38,9 +38,7 @@ function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
 	var promiseList = [];
 	for (var offset = 0; offset < playlistLength; offset += 100) {
 		promiseList.push(spotifyApi.getPlaylistTracks(userId, playlistId, { offset })
-	        .then(addSongsToMap, function (err) {
-	            console.error(err);
-	        })
+	        .then(addSongsToMap)
 		);
 	}
 	return Promise.all(promiseList).then(function (data) {
@@ -68,9 +66,7 @@ function getUserSavedTracks (spotifyApi) {
 			var promiseList = [];
 			for (var offset = limit; offset < res.total; offset += limit) {
 				promiseList.push(spotifyApi.getMySavedTracks({ offset, limit })
-					.then(addSongsToMap, function (err) {
-						console.error(err);
-					})
+					.then(addSongsToMap)
 				);
 			}
 			return Promise.all(promiseList).then(function (data) {

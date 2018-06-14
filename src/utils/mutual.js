@@ -1,13 +1,25 @@
 function getListOfMutualSongs (spotifyApi, otherUserID) {
-	var promiseList = [];
-	promiseList.push(getMapOfAllSongs(spotifyApi));
-	promiseList.push(getUserSavedTracks(spotifyApi));
-	promiseList.push(getListOfSongsByUserID(spotifyApi, otherUserID));
-	return Promise.all(promiseList).then(function (data) {
-		var userSongMap = data[0];
-		var friendSongMap = data[2];
-		concatMaps(userSongMap, data[1]);
-		return getMutualMap(userSongMap, friendSongMap);
+	let playlistSongMap, savedSongMap, friendSongMap;
+	return getMapOfAllSongs(spotifyApi).then((data) => {
+		console.log('this user\'s playlist songs');
+		console.log(data);
+		//onsole.log(songs.keys().next().value);
+		playlistSongMap = data;
+	}).then(
+		() => getUserSavedTracks(spotifyApi)
+	).then((data) => {
+		console.log('this user\'s saved songs');
+		console.log(data);
+		savedSongMap = data;
+	}).then(
+		() => getListOfSongsByUserID(spotifyApi, otherUserID)
+	).then((data) => {
+		console.log('friend\'s playlist songs');
+		console.log(data);
+		friendSongMap = data;
+	}).then((data) => {
+		concatMaps(playlistSongMap, savedSongMap);
+		return getMutualMap(playlistSongMap, friendSongMap);
 	});
 }
 
@@ -18,14 +30,14 @@ function getMapOfAllSongs(spotifyApi) {
 function getListOfSongsByUserID (spotifyApi, otherUserID) {
 	return spotifyApi.getUserPlaylists(otherUserID).then(function(data) {
 		let nextPromise = Promise.resolve();
-		let getSongs = () => getSongsOfPlaylist(pl.owner.id, pl.id, pl.tracks.total, spotifyApi);
-		for (var pl of data.items) {
+		let getSongs = (pl) => (() => getSongsOfPlaylist(pl.owner.id, pl.id, pl.tracks.total, spotifyApi));
+		for (let playlist of data.items) {
 			//const wasCreatedByThisUser = pl.owner.id === otherUserID || pl.owner.id === spotifyApi.id;
-			nextPromise = nextPromise.then(getSongs);
+			nextPromise = nextPromise.then(getSongs(playlist));
 		}
 		return nextPromise.then(function (data) {
 			console.log(data);
-
+			
 			var totalMap = data[0];
 			for (var i = 1; i < data.length; i++) {
 				concatMaps(totalMap, data[i]);
@@ -48,7 +60,7 @@ function getUserSavedTracks (spotifyApi) {
 }
 
 function getTrackMap (trackApiCall, limit, playlistLength) {
-	var songs = new Map();
+	let songs = new Map();
 
 	// get them once first, to get the total,
 	// then make the required number of requests
@@ -63,21 +75,16 @@ function getTrackMap (trackApiCall, limit, playlistLength) {
 		// request
 		if (totalNumberOfSongs <= limit) return;
 
-		let nextPromise = Promise.resolve();
+		let firstPromise = Promise.resolve();
+		let nextPromise = firstPromise;
 		let doNextCall = (off) => (() => trackApiCall({ off, limit }));
-
+		
 		for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
-			nextPromise = nextPromise.then(doNextCall(offset));
-			nextPromise = nextPromise.then(addSongsToMap);
+			nextPromise = nextPromise.then(doNextCall(offset)).then(addSongsToMap.bind(this));
 		}
-		return nextPromise.then(() => {
-			console.log('hi');
 
-			console.log(songs);
-			return songs;
-
-		});
-	});
+		return firstPromise;
+	}).then(() => songs);
 
 	function addSongsToMap (data) {
 		for (var song of data.items) {

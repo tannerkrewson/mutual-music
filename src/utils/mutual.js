@@ -29,21 +29,20 @@ function getMapOfAllSongs(spotifyApi) {
 
 function getListOfSongsByUserID (spotifyApi, otherUserID) {
 	return spotifyApi.getUserPlaylists(otherUserID).then(function(data) {
+		let totalMap = new Map();
 		let nextPromise = Promise.resolve();
-		let getSongs = (pl) => (() => getSongsOfPlaylist(pl.owner.id, pl.id, pl.tracks.total, spotifyApi));
-		for (let playlist of data.items) {
+
+		for (let pl of data.items) {
 			//const wasCreatedByThisUser = pl.owner.id === otherUserID || pl.owner.id === spotifyApi.id;
-			nextPromise = nextPromise.then(getSongs(playlist));
+			nextPromise = nextPromise.then(() => {
+				// get a map of all of the songs in the playlist
+				return getSongsOfPlaylist(pl.owner.id, pl.id, pl.tracks.total, spotifyApi);
+			}).then((plMap) => {
+				// add all of those songs to the totalMap
+				concatMaps(totalMap, plMap);
+			});
 		}
-		return nextPromise.then(function (data) {
-			console.log(data);
-			
-			var totalMap = data[0];
-			for (var i = 1; i < data.length; i++) {
-				concatMaps(totalMap, data[i]);
-			}
-			return totalMap;
-		});
+		return nextPromise.then(() => totalMap);
 	});
 }
 
@@ -66,7 +65,7 @@ function getTrackMap (trackApiCall, limit, playlistLength) {
 	// then make the required number of requests
 	// to reach that total
 	return trackApiCall({ limit }).then(function (res) {
-		addSongsToMap(res);
+		addSongsToMap(songs, res.items);
 
 		let totalNumberOfSongs = playlistLength ? playlistLength : res.total;
 
@@ -77,19 +76,23 @@ function getTrackMap (trackApiCall, limit, playlistLength) {
 
 		let firstPromise = Promise.resolve();
 		let nextPromise = firstPromise;
-		let doNextCall = (off) => (() => trackApiCall({ off, limit }));
-		
+
 		for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
-			nextPromise = nextPromise.then(doNextCall(offset)).then(addSongsToMap.bind(this));
+			nextPromise = nextPromise.then(() => {
+				return trackApiCall({ offset, limit });
+			}).then((data) => {
+				addSongsToMap(songs, data.items);
+			});
 		}
 
 		return firstPromise;
 	}).then(() => songs);
 
-	function addSongsToMap (data) {
-		for (var song of data.items) {
+	function addSongsToMap (songsMap, newSongs) {
+		for (let song of newSongs) {
+			// this prevents local songs from polluting our maps
 			if (song.track.id) {
-				songs.set(song.track.id, true);
+				songsMap.set(song.track.id, true);
 			}
 		}
 	}

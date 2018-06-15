@@ -59,12 +59,16 @@ function getUserSavedTracks (spotifyApi) {
 }
 
 function getTrackMap (trackApiCall, limit, playlistLength) {
-	let songs = new Map();
-
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
-	return trackApiCall({ limit }).then(function (res) {
+	console.log('NEW CALL');
+
+	console.log('--A');
+	return trackApiCall({ limit }).then((res) => {
+
+		let songs = new Map();
+
 		addSongsToMap(songs, res.items);
 
 		let totalNumberOfSongs = playlistLength ? playlistLength : res.total;
@@ -72,23 +76,25 @@ function getTrackMap (trackApiCall, limit, playlistLength) {
 		// if we were able to get all of the songs already, because
 		// the the number of songs was less than the limit for one
 		// request
-		if (totalNumberOfSongs <= limit) return;
+		if (totalNumberOfSongs <= limit) return songs;
 
-		let firstPromise = Promise.resolve();
-		let nextPromise = firstPromise;
+		let nextPromise = Promise.resolve();
 
 		for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
 			nextPromise = nextPromise.then(() => {
+				console.log('A');
 				return trackApiCall({ offset, limit });
 			}).then((data) => {
 				addSongsToMap(songs, data.items);
 			});
 		}
 
-		return firstPromise;
-	}).then(() => songs);
+		return nextPromise.then(() => songs);
+	});
 
 	function addSongsToMap (songsMap, newSongs) {
+		console.log('--B: ' + songsMap.size + ' += ' + newSongs.length);
+
 		for (let song of newSongs) {
 			// this prevents local songs from polluting our maps
 			if (song.track.id) {

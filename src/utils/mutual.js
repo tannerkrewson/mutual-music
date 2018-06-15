@@ -1,33 +1,39 @@
-function getListOfMutualSongs (spotifyApi, otherUserID) {
-	let playlistSongMap, savedSongMap, friendSongMap;
-	return getMapOfAllSongs(spotifyApi).then((data) => {
+function getListOfMutualSongs (spotifyApi, friendsUserID) {
+	let playlistSongMap, savedSongMap, thisUsersSongsMap, friendsSongsMap;
+	return getThisUsersPlaylistSongs(spotifyApi).then((data) => {
 		console.log('this user\'s playlist songs');
 		console.log(data);
-		//onsole.log(songs.keys().next().value);
 		playlistSongMap = data;
 	}).then(
-		() => getUserSavedTracks(spotifyApi)
+		() => getThisUsersSavedTracks(spotifyApi)
 	).then((data) => {
 		console.log('this user\'s saved songs');
 		console.log(data);
 		savedSongMap = data;
 	}).then(
-		() => getListOfSongsByUserID(spotifyApi, otherUserID)
+		() => getFriendsPlaylistSongs(spotifyApi, friendsUserID)
 	).then((data) => {
 		console.log('friend\'s playlist songs');
 		console.log(data);
-		friendSongMap = data;
+		friendsSongsMap = data;
 	}).then((data) => {
-		concatMaps(playlistSongMap, savedSongMap);
-		return getMutualMap(playlistSongMap, friendSongMap);
+		// combine all of the songs into one map
+		thisUsersSongsMap = concatMaps(playlistSongMap, savedSongMap);
+
+		// find the mutual songs and
+		return getMutualMap(thisUsersSongsMap, friendsSongsMap);
 	});
 }
 
-function getMapOfAllSongs(spotifyApi) {
-	return getListOfSongsByUserID(spotifyApi, null);
+function getThisUsersPlaylistSongs(spotifyApi) {
+	return getPlaylistSongsByUserID(spotifyApi, null);
 }
 
-function getListOfSongsByUserID (spotifyApi, otherUserID) {
+function getFriendsPlaylistSongs(spotifyApi, userIDofFriend) {
+	return getPlaylistSongsByUserID(spotifyApi, userIDofFriend);
+}
+
+function getPlaylistSongsByUserID (spotifyApi, otherUserID) {
 	return spotifyApi.getUserPlaylists(otherUserID).then(function(data) {
 		let totalMap = new Map();
 		let nextPromise = Promise.resolve();
@@ -47,6 +53,7 @@ function getListOfSongsByUserID (spotifyApi, otherUserID) {
 }
 
 function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
+	// the limit of 100 is the max the API allows for getPlaylistTracks
 	return getTrackMap(
 		(options) => spotifyApi.getPlaylistTracks(userId, playlistId, options),
 		100,
@@ -54,17 +61,20 @@ function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
 	);
 }
 
-function getUserSavedTracks (spotifyApi) {
-	return getTrackMap((options) => spotifyApi.getMySavedTracks(options), 50);
+function getThisUsersSavedTracks (spotifyApi) {
+	// the limit of 50 is the max the API allows for getMySavedTracks
+	return getTrackMap(
+		(options) => spotifyApi.getMySavedTracks(options),
+		50,
+		undefined
+	);
 }
 
 function getTrackMap (trackApiCall, limit, playlistLength) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
-	console.log('NEW CALL');
-
-	console.log('--A');
+	console.log('NEW CALL\n--A');
 	return trackApiCall({ limit }).then((res) => {
 
 		let songs = new Map();
@@ -82,7 +92,7 @@ function getTrackMap (trackApiCall, limit, playlistLength) {
 
 		for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
 			nextPromise = nextPromise.then(() => {
-				console.log('A');
+				console.log('--A');
 				return trackApiCall({ offset, limit });
 			}).then((data) => {
 				addSongsToMap(songs, data.items);
@@ -108,6 +118,7 @@ function concatMaps (map, mapToAdd) {
 	for (const item of mapToAdd) {
 		map.set(...item);
 	}
+	return map;
 }
 
 function getMutualMap (map1, map2) {

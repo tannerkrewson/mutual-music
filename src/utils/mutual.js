@@ -1,27 +1,27 @@
 function getListOfMutualSongs (spotifyApi, friendsUserID) {
-	let playlistSongMap, savedSongMap, thisUsersSongsMap, friendsSongsMap;
+	let playlistSongSet, savedSongSet, thisUsersSongsSet, friendsSongsSet;
 	return getThisUsersPlaylistSongs(spotifyApi).then((data) => {
 		console.log('this user\'s playlist songs');
 		console.log(data);
-		playlistSongMap = data;
+		playlistSongSet = data;
 	}).then(
 		() => getThisUsersSavedTracks(spotifyApi)
 	).then((data) => {
 		console.log('this user\'s saved songs');
 		console.log(data);
-		savedSongMap = data;
+		savedSongSet = data;
 	}).then(
 		() => getFriendsPlaylistSongs(spotifyApi, friendsUserID)
 	).then((data) => {
 		console.log('friend\'s playlist songs');
 		console.log(data);
-		friendsSongsMap = data;
+		friendsSongsSet = data;
 	}).then((data) => {
-		// combine all of the songs into one map
-		thisUsersSongsMap = concatMaps(playlistSongMap, savedSongMap);
+		// combine all of the songs into one set
+		thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
 
 		// find the mutual songs and
-		return getMutualMap(thisUsersSongsMap, friendsSongsMap);
+		return getMutualSet(thisUsersSongsSet, friendsSongsSet);
 	});
 }
 
@@ -35,26 +35,26 @@ function getFriendsPlaylistSongs(spotifyApi, userIDofFriend) {
 
 function getPlaylistSongsByUserID (spotifyApi, otherUserID) {
 	return spotifyApi.getUserPlaylists(otherUserID).then(function(data) {
-		let totalMap = new Map();
+		let totalSet = new Set();
 		let nextPromise = Promise.resolve();
 
 		for (let pl of data.items) {
 			//const wasCreatedByThisUser = pl.owner.id === otherUserID || pl.owner.id === spotifyApi.id;
 			nextPromise = nextPromise.then(() => {
-				// get a map of all of the songs in the playlist
+				// get a set of all of the songs in the playlist
 				return getSongsOfPlaylist(pl.owner.id, pl.id, pl.tracks.total, spotifyApi);
-			}).then((plMap) => {
-				// add all of those songs to the totalMap
-				concatMaps(totalMap, plMap);
+			}).then((plSet) => {
+				// add all of those songs to the totalSet
+				concatSets(totalSet, plSet);
 			});
 		}
-		return nextPromise.then(() => totalMap);
+		return nextPromise.then(() => totalSet);
 	});
 }
 
 function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
 	// the limit of 100 is the max the API allows for getPlaylistTracks
-	return getTrackMap(
+	return getTrackSet(
 		(options) => spotifyApi.getPlaylistTracks(userId, playlistId, options),
 		100,
 		playlistLength
@@ -63,23 +63,23 @@ function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
 
 function getThisUsersSavedTracks (spotifyApi) {
 	// the limit of 50 is the max the API allows for getMySavedTracks
-	return getTrackMap(
+	return getTrackSet(
 		(options) => spotifyApi.getMySavedTracks(options),
 		50,
 		undefined
 	);
 }
 
-function getTrackMap (trackApiCall, limit, playlistLength) {
+function getTrackSet (trackApiCall, limit, playlistLength) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
 	console.log('NEW CALL\n--A');
 	return trackApiCall({ limit }).then((res) => {
 
-		let songs = new Map();
+		let songs = new Set();
 
-		addSongsToMap(songs, res.items);
+		addSongsToSet(songs, res.items);
 
 		let totalNumberOfSongs = playlistLength ? playlistLength : res.total;
 
@@ -95,38 +95,44 @@ function getTrackMap (trackApiCall, limit, playlistLength) {
 				console.log('--A');
 				return trackApiCall({ offset, limit });
 			}).then((data) => {
-				addSongsToMap(songs, data.items);
+				addSongsToSet(songs, data.items);
 			});
 		}
 
-		return nextPromise.then(() => songs);
+		return nextPromise.then(() => {
+			console.log(songs);
+			return songs;
+
+		});
 	});
 
-	function addSongsToMap (songsMap, newSongs) {
-		console.log('--B: ' + songsMap.size + ' += ' + newSongs.length);
+	function addSongsToSet (songsSet, newSongs) {
+		console.log('--B: ' + songsSet.size + ' += ' + newSongs.length);
 
 		for (let song of newSongs) {
-			// this prevents local songs from polluting our maps
+			// this prevents local songs from polluting our sets
 			if (song.track.id) {
-				songsMap.set(song.track.id, true);
+				songsSet.add(song.track.id);
 			}
 		}
 	}
 }
 
-function concatMaps (map, mapToAdd) {
-	for (const item of mapToAdd) {
-		map.set(...item);
+function concatSets (set, setToAdd) {
+	for (const item of setToAdd) {
+		set.add(item);
 	}
-	return map;
+	return set;
 }
 
-function getMutualMap (map1, map2) {
+function getMutualSet (set1, set2) {
 	var res = [];
-	for (const song of map1) {
-		// if the other map has the key
-		if (song[0] && map2.has( song[0] )) {
-			res.push('spotify:track:' + song[0]);
+	for (const song of set1) {
+		// if the other set has the key
+		console.log(song);
+
+		if (song && set2.has( song )) {
+			res.push('spotify:track:' + song);
 		}
 	}
 	return res;

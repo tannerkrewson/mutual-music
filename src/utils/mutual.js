@@ -1,22 +1,24 @@
-function getListOfMutualSongs (spotifyApi, friendsUserID) {
+function getListOfMutualSongs(spotifyApi, friendsUserID) {
 	let playlistSongSet, savedSongSet, thisUsersSongsSet, friendsSongsSet;
-	return getThisUsersPlaylistSongs(spotifyApi).then((data) => {
-		playlistSongSet = data;
-	}).then(
-		() => getThisUsersSavedTracks(spotifyApi)
-	).then((data) => {
-		savedSongSet = data;
-	}).then(
-		() => getFriendsPlaylistSongs(spotifyApi, friendsUserID)
-	).then((data) => {
-		friendsSongsSet = data;
-	}).then((data) => {
-		// combine all of the songs into one set
-		thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
+	return getThisUsersPlaylistSongs(spotifyApi)
+		.then(data => {
+			playlistSongSet = data;
+		})
+		.then(() => getThisUsersSavedTracks(spotifyApi))
+		.then(data => {
+			savedSongSet = data;
+		})
+		.then(() => getFriendsPlaylistSongs(spotifyApi, friendsUserID))
+		.then(data => {
+			friendsSongsSet = data;
+		})
+		.then(data => {
+			// combine all of the songs into one set
+			thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
 
-		// find the mutual songs and
-		return getMutualSet(thisUsersSongsSet, friendsSongsSet);
-	});
+			// find the mutual songs and
+			return getMutualSet(thisUsersSongsSet, friendsSongsSet);
+		});
 }
 
 function getThisUsersPlaylistSongs(spotifyApi) {
@@ -27,49 +29,55 @@ function getFriendsPlaylistSongs(spotifyApi, userIDofFriend) {
 	return getPlaylistSongsByUserID(spotifyApi, userIDofFriend);
 }
 
-function getPlaylistSongsByUserID (spotifyApi, otherUserID) {
+function getPlaylistSongsByUserID(spotifyApi, otherUserID) {
 	return spotifyApi.getUserPlaylists(otherUserID).then(function(data) {
 		let totalSet = new Set();
 		let nextPromise = Promise.resolve();
 
 		for (let pl of data.items) {
 			//const wasCreatedByThisUser = pl.owner.id === otherUserID || pl.owner.id === spotifyApi.id;
-			nextPromise = nextPromise.then(() => {
-				// get a set of all of the songs in the playlist
-				return getSongsOfPlaylist(pl.owner.id, pl.id, pl.tracks.total, spotifyApi);
-			}).then((plSet) => {
-				// add all of those songs to the totalSet
-				concatSets(totalSet, plSet);
-			});
+			nextPromise = nextPromise
+				.then(() => {
+					// get a set of all of the songs in the playlist
+					return getSongsOfPlaylist(
+						pl.owner.id,
+						pl.id,
+						pl.tracks.total,
+						spotifyApi
+					);
+				})
+				.then(plSet => {
+					// add all of those songs to the totalSet
+					concatSets(totalSet, plSet);
+				});
 		}
 		return nextPromise.then(() => totalSet);
 	});
 }
 
-function getSongsOfPlaylist (userId, playlistId, playlistLength, spotifyApi) {
+function getSongsOfPlaylist(userId, playlistId, playlistLength, spotifyApi) {
 	// the limit of 100 is the max the API allows for getPlaylistTracks
 	return getTrackSet(
-		(options) => spotifyApi.getPlaylistTracks(userId, playlistId, options),
+		options => spotifyApi.getPlaylistTracks(userId, playlistId, options),
 		100,
 		playlistLength
 	);
 }
 
-function getThisUsersSavedTracks (spotifyApi) {
+function getThisUsersSavedTracks(spotifyApi) {
 	// the limit of 50 is the max the API allows for getMySavedTracks
 	return getTrackSet(
-		(options) => spotifyApi.getMySavedTracks(options),
+		options => spotifyApi.getMySavedTracks(options),
 		50,
 		undefined
 	);
 }
 
-function getTrackSet (trackApiCall, limit, playlistLength) {
+function getTrackSet(trackApiCall, limit, playlistLength) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
-	return trackApiCall({ limit }).then((res) => {
-
+	return trackApiCall({ limit }).then(res => {
 		let songs = new Set();
 
 		addSongsToSet(songs, res.items);
@@ -84,20 +92,21 @@ function getTrackSet (trackApiCall, limit, playlistLength) {
 		let nextPromise = Promise.resolve();
 
 		for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
-			nextPromise = nextPromise.then(() => {
-				return trackApiCall({ offset, limit });
-			}).then((data) => {
-				addSongsToSet(songs, data.items);
-			});
+			nextPromise = nextPromise
+				.then(() => {
+					return trackApiCall({ offset, limit });
+				})
+				.then(data => {
+					addSongsToSet(songs, data.items);
+				});
 		}
 
 		return nextPromise.then(() => {
 			return songs;
-
 		});
 	});
 
-	function addSongsToSet (songsSet, newSongs) {
+	function addSongsToSet(songsSet, newSongs) {
 		for (let song of newSongs) {
 			// this prevents local songs from polluting our sets
 			if (song.track.id) {
@@ -107,31 +116,33 @@ function getTrackSet (trackApiCall, limit, playlistLength) {
 	}
 }
 
-function concatSets (set, setToAdd) {
+function concatSets(set, setToAdd) {
 	for (const item of setToAdd) {
 		set.add(item);
 	}
 	return set;
 }
 
-function getMutualSet (set1, set2) {
+function getMutualSet(set1, set2) {
 	var res = [];
 	for (const song of set1) {
 		// if the other set has the key
-		if (song && set2.has( song )) {
-			res.push('spotify:track:' + song);
+		if (song && set2.has(song)) {
+			res.push("spotify:track:" + song);
 		}
 	}
 	return res;
 }
 
-function addSongsToPlaylist (userId, playlistId, songList, spotifyApi) {
+function addSongsToPlaylist(userId, playlistId, songList, spotifyApi) {
 	var promiseList = [];
 	for (var offset = 0; offset < songList.length; offset += 100) {
 		var songsToAdd = songList.slice(offset, offset + 100);
-		promiseList.push(spotifyApi.addTracksToPlaylist(userId, playlistId, songsToAdd));
+		promiseList.push(
+			spotifyApi.addTracksToPlaylist(userId, playlistId, songsToAdd)
+		);
 	}
 	return Promise.all(promiseList);
 }
 
-module.exports = {getListOfMutualSongs, addSongsToPlaylist};
+module.exports = { getListOfMutualSongs, addSongsToPlaylist };

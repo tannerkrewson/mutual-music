@@ -1,21 +1,19 @@
-import React, {
-	Component
-} from 'react';
+import React, { Component } from "react";
 
 const cssCenter = {
-	textAlign: 'center',
-	paddingTop: '16px',
-	paddingBottom: '24px'
-}
+	textAlign: "center",
+	paddingTop: "16px",
+	paddingBottom: "24px"
+};
 
 const butGroup = {
-	textAlign: 'center',
-	paddingTop: '12px',
-}
+	textAlign: "center",
+	paddingTop: "12px"
+};
 
 const but = {
-	margin: '.25rem'
-}
+	margin: ".25rem"
+};
 
 class Generator extends Component {
 	render() {
@@ -31,9 +29,10 @@ class Generator extends Component {
 		if (this.props.countResult === 0) {
 			countString = "You guys don't have any mutual songs. ;(";
 		} else if (this.props.countResult === 1) {
-			countString = 'You guys only have one mutual song.';
+			countString = "You guys only have one mutual song.";
 		} else {
-			countString = 'You guys have ' + this.props.countResult + ' mutual songs!';
+			countString =
+				"You guys have " + this.props.countResult + " mutual songs!";
 		}
 		return (
 			<div style={cssCenter}>
@@ -47,7 +46,7 @@ class Generator extends Component {
 					>
 						Back
 					</button>
-					{this.props.countResult > 0 &&
+					{this.props.countResult > 0 && (
 						<button
 							type="button"
 							className="btn btn-success"
@@ -56,7 +55,7 @@ class Generator extends Component {
 						>
 							Make a Playlist
 						</button>
-					}
+					)}
 				</div>
 			</div>
 		);

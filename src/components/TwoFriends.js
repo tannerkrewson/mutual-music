@@ -1,24 +1,22 @@
-import React, {
-	Component
-} from 'react';
-import SpotifyUser from './SpotifyUser';
+import React, { Component } from "react";
+import SpotifyUser from "./SpotifyUser";
 
 const css = {
-	textAlign: 'center'
-}
+	textAlign: "center"
+};
 
 const left = {
-	paddingLeft: '50%'
-}
+	paddingLeft: "50%"
+};
 
 const and = {
-	paddingTop: '40px',
-	paddingBottom: '30px'
-}
+	paddingTop: "40px",
+	paddingBottom: "30px"
+};
 
 const right = {
-	paddingRight: '50%'
-}
+	paddingRight: "50%"
+};
 
 class TwoFriends extends Component {
 	render() {
@@ -38,7 +36,7 @@ class TwoFriends extends Component {
 					</div>
 				</div>
 			</div>
-        );
+		);
 	}
 }
 

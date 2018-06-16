@@ -1,13 +1,11 @@
-import React, {
-	Component
-} from 'react';
+import React, { Component } from "react";
 
-import spotifyUtils from '../utils/spotify';
+import spotifyUtils from "../utils/spotify";
 
 const but = {
-	textAlign: 'center',
-	padding: '32px'
-}
+	textAlign: "center",
+	padding: "32px"
+};
 
 class SpotifyLogin extends Component {
 	render() {

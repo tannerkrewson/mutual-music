@@ -1,16 +1,14 @@
-import React, {
-	Component
-} from 'react';
-import Header from './components/Header';
-import FriendSelector from './components/FriendSelector';
-import TwoFriends from './components/TwoFriends';
-import Generator from './components/Generator';
-import SpotifyLogin from './components/SpotifyLogin';
-import PlaylistResult from './components/PlaylistResult';
+import React, { Component } from "react";
+import Header from "./components/Header";
+import FriendSelector from "./components/FriendSelector";
+import TwoFriends from "./components/TwoFriends";
+import Generator from "./components/Generator";
+import SpotifyLogin from "./components/SpotifyLogin";
+import PlaylistResult from "./components/PlaylistResult";
 
-import spotifyUtils from './utils/spotify';
-import mutual from './utils/mutual';
-import SpotifyWebAPI from 'spotify-web-api-js';
+import spotifyUtils from "./utils/spotify";
+import mutual from "./utils/mutual";
+import SpotifyWebAPI from "spotify-web-api-js";
 
 class App extends Component {
 	constructor(props) {
@@ -39,10 +37,10 @@ class App extends Component {
 			this.setState({
 				isLoading: true
 			});
-			this.state.spotify.getUser(userID).then((data) => {
+			this.state.spotify.getUser(userID).then(data => {
 				this.setState({
 					friend: data
-				});				
+				});
 				this.findCount();
 			});
 		}
@@ -56,21 +54,23 @@ class App extends Component {
 		});
 	}
 	findCount() {
-		mutual.getListOfMutualSongs(this.state.spotify, this.state.friend.id)
-			.then((songs) => {
+		mutual.getListOfMutualSongs(this.state.spotify, this.state.friend.id).then(
+			songs => {
 				// success
 				this.setState({
 					mutualSongs: songs,
 					countResult: songs.length,
 					isLoading: false
 				});
-			}, (err) => {
+			},
+			err => {
 				// fail
 				this.setState({
 					isLoading: false
 				});
 				console.error(err);
-			});
+			}
+		);
 	}
 	makePlaylist() {
 		this.setState({
@@ -81,59 +81,79 @@ class App extends Component {
 		if (this.state.friend.display_name) {
 			friendName = this.state.friend.display_name.toLowerCase();
 		}
-		this.state.spotify.createPlaylist(this.state.user.id, {
-			name: 'me and ' + friendName + '\'s mutual songs',
-			description: 'Made with Mutual Music: tannerkrewson.com/mutual-music'
-		}).then(function(playlist) {
-			self.setState({
-				isLoading: false,
-				playlistResult: playlist.external_urls.spotify
+		this.state.spotify
+			.createPlaylist(this.state.user.id, {
+				name: "me and " + friendName + "'s mutual songs",
+				description: "Made with Mutual Music: tannerkrewson.com/mutual-music"
+			})
+			.then(function(playlist) {
+				self.setState({
+					isLoading: false,
+					playlistResult: playlist.external_urls.spotify
+				});
+				return mutual.addSongsToPlaylist(
+					self.state.user.id,
+					playlist.id,
+					self.state.mutualSongs,
+					self.state.spotify
+				);
 			});
-			return mutual.addSongsToPlaylist(self.state.user.id, playlist.id, self.state.mutualSongs, self.state.spotify);
-		})
 	}
 	render() {
 		return (
-            <div className="App container">
+			<div className="App container">
 				<div className="row">
 					<div className="col-md-12">
 						<Header isLoggedIn={this.state.isLoggedIn} />
-						{!this.state.isLoggedIn &&
-							<SpotifyLogin />
-						}
-						{this.state.isLoggedIn &&
+						{!this.state.isLoggedIn && <SpotifyLogin />}
+						{this.state.isLoggedIn && (
 							<TwoFriends user={this.state.user} friend={this.state.friend} />
-						}
-						{this.state.isLoggedIn  && !this.state.friend &&
-							<FriendSelector
-								onValidUserId={this.onFriendSelected.bind(this)}
-								selectedUser={this.state.friend}
-							/>
-						}
-						{this.state.friend && !this.state.playlistResult &&
-							<Generator
-								countResult={this.state.countResult}
-								playlistResult={this.state.playlistResult}
-								onMakePlaylist={this.makePlaylist.bind(this)}
-								isLoading={this.state.isLoading}
-								onReset={this.anotherOne.bind(this)}
-							/>
-						}
-						{this.state.playlistResult &&
+						)}
+						{this.state.isLoggedIn &&
+							!this.state.friend && (
+								<FriendSelector
+									onValidUserId={this.onFriendSelected.bind(this)}
+									selectedUser={this.state.friend}
+								/>
+							)}
+						{this.state.friend &&
+							!this.state.playlistResult && (
+								<Generator
+									countResult={this.state.countResult}
+									playlistResult={this.state.playlistResult}
+									onMakePlaylist={this.makePlaylist.bind(this)}
+									isLoading={this.state.isLoading}
+									onReset={this.anotherOne.bind(this)}
+								/>
+							)}
+						{this.state.playlistResult && (
 							<PlaylistResult
 								playlistResult={this.state.playlistResult}
 								onReset={this.anotherOne.bind(this)}
 							/>
-						}
+						)}
 						<footer>
-							Mutual Music by <a href="http://www.tannerkrewson.com/" target="_blank" rel="noopener noreferrer">Tanner Krewson</a>
-							<br/>
-							<a href="https://github.com/tannerkrewson/mutual-music" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+							Mutual Music by{" "}
+							<a
+								href="http://www.tannerkrewson.com/"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Tanner Krewson
+							</a>
+							<br />
+							<a
+								href="https://github.com/tannerkrewson/mutual-music"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								View on GitHub
+							</a>
 						</footer>
 					</div>
 				</div>
-            </div>
-        );
+			</div>
+		);
 	}
 }
 

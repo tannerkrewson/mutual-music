@@ -3,7 +3,15 @@ import Clipboard from "react-clipboard.js";
 
 import FaFacebookSquare from "react-icons/lib/fa/facebook-square";
 import FaTwitterSquare from "react-icons/lib/fa/twitter-square";
-import FaInstagram from "react-icons/lib/fa/instagram";
+import FaEnvelopeSquare from "react-icons/lib/fa/envelope-square";
+import FaTumblrSquare from "react-icons/lib/fa/tumblr-square";
+
+import {
+	FacebookShareButton,
+	TwitterShareButton,
+	TumblrShareButton,
+	EmailShareButton
+} from "react-share";
 
 const css = {
 	paddingTop: "16px",
@@ -18,6 +26,12 @@ const butGroup = {
 const butGroupGroup = {
 	display: "flex",
 	justifyContent: "center"
+};
+
+const icon = {
+	background: "white",
+	borderRadius: "6px",
+	marginLeft: "6px"
 };
 
 class PlaylistResult extends Component {
@@ -42,15 +56,18 @@ class PlaylistResult extends Component {
 						</Clipboard>
 					</div>
 					<div className="btn-group mr-2" role="group">
-						<button type="button" className="btn">
-							<FaFacebookSquare />
-						</button>
-						<button type="button" className="btn">
-							<FaTwitterSquare />
-						</button>
-						<button type="button" className="btn">
-							<FaInstagram />
-						</button>
+						<FacebookShareButton url={this.props.playlistResult}>
+							<FaFacebookSquare style={icon} size={38} color="#3b5998" />
+						</FacebookShareButton>
+						<TwitterShareButton url={this.props.playlistResult}>
+							<FaTwitterSquare style={icon} size={38} color="#00aced" />
+						</TwitterShareButton>
+						<TumblrShareButton url={this.props.playlistResult}>
+							<FaTumblrSquare style={icon} size={38} color="#35465c" />
+						</TumblrShareButton>
+						<EmailShareButton url={this.props.playlistResult}>
+							<FaEnvelopeSquare style={icon} size={38} color="grey" />
+						</EmailShareButton>
 					</div>
 				</div>
 				<div style={butGroup}>

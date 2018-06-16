@@ -6,8 +6,7 @@ class FriendSelector extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			value: '',
-			userID: ''
+			value: ''
 		};
 
 		this.handleChange = this.handleChange.bind(this);
@@ -16,19 +15,14 @@ class FriendSelector extends Component {
 	handleChange(event) {
 		event.preventDefault();
 		var value = event.target.value;
-		var userID = this.state.userID;
 		if (value.startsWith('https://open.spotify.com/user/')) {
-			userID = value.substring(30).split('?')[0];
+			let userID = value.substring(30).split('?')[0];
+			this.props.onValidUserId(userID);
 		} else if (value.startsWith('spotify:user:')) {
-			userID = value.substring(13);
+			let userID = value.substring(13);
+			this.props.onValidUserId(userID);
 		}
-		this.setState({value, userID});
-	}
-
-	componentDidUpdate() {
-		if (this.state.userID) {
-			this.props.onValidUserId(this.state.userID);
-		}
+		this.setState({value});
 	}
 
 	render() {

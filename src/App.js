@@ -31,17 +31,19 @@ class App extends Component {
 		this.state = {
 			spotify: spotifyApi,
 			isLoggedIn: !!spotifyHash,
-			isLoading: true
+			isLoading: false
 		};
 	}
 	onFriendSelected(userID) {
-		var self = this;
 		if (!this.state.friend) {
-			this.state.spotify.getUser(userID).then(function(data) {
-				self.setState({
+			this.setState({
+				isLoading: true
+			});
+			this.state.spotify.getUser(userID).then((data) => {
+				this.setState({
 					friend: data
-				});
-				self.findCount();
+				});				
+				this.findCount();
 			});
 		}
 	}
@@ -54,18 +56,17 @@ class App extends Component {
 		});
 	}
 	findCount() {
-		var self = this;
 		mutual.getListOfMutualSongs(this.state.spotify, this.state.friend.id)
 			.then((songs) => {
 				// success
-				self.setState({
+				this.setState({
 					mutualSongs: songs,
 					countResult: songs.length,
 					isLoading: false
 				});
 			}, (err) => {
 				// fail
-				self.setState({
+				this.setState({
 					isLoading: false
 				});
 				console.error(err);

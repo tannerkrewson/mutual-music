@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import Clipboard from "react-clipboard.js";
 
+import FaFacebookSquare from "react-icons/lib/fa/facebook-square";
+import FaTwitterSquare from "react-icons/lib/fa/twitter-square";
+import FaInstagram from "react-icons/lib/fa/instagram";
+
 const css = {
 	paddingTop: "16px",
 	paddingBottom: "24px"
@@ -39,16 +43,13 @@ class PlaylistResult extends Component {
 					</div>
 					<div className="btn-group mr-2" role="group">
 						<button type="button" className="btn">
-							fb
+							<FaFacebookSquare />
 						</button>
 						<button type="button" className="btn">
-							tw
+							<FaTwitterSquare />
 						</button>
 						<button type="button" className="btn">
-							ig
-						</button>
-						<button type="button" className="btn">
-							etc
+							<FaInstagram />
 						</button>
 					</div>
 				</div>

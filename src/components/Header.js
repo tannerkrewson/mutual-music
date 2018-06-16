@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import MdHeadset from "react-icons/lib/md/headset";
+
 const cssAppTitle = {
 	fontWeight: "bolder"
 };
@@ -14,9 +16,7 @@ class Header extends Component {
 		return (
 			<header>
 				<p className={titleClasses} style={cssAppTitle}>
-					<span role="img" aria-label="">
-						🎧{" "}
-					</span>
+					<MdHeadset style={{ paddingBottom: "2px" }} />{" "}
 					<span class="avoidwrap">mutual music</span>
 				</p>
 				<p className={subtitleClasses}>

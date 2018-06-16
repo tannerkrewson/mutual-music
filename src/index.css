@@ -6,13 +6,13 @@ body {
 }
 
 .gradient-background {
-  background: radial-gradient(#373737, #282828, #202020);
-  background-repeat: no-repeat;
-  width: 100%;
-  top: 0px;
-  bottom: 0px;
-  position: fixed;
-  z-index: -1;
+    background: radial-gradient(#373737, #282828, #202020);
+    background-repeat: no-repeat;
+    width: 100%;
+    top: 0px;
+    bottom: 0px;
+    position: fixed;
+    z-index: -1;
 }
 
 a {
@@ -30,11 +30,10 @@ a {
     margin: 10% auto auto auto;
     max-width: 500px;
     background: #222222;
-    padding: 36px;
-    padding-top: 48px;
-    padding-bottom: 32px;
+    padding: 12px;
+    padding-top: 24px;
+    padding-bottom: 18px;
     border: 1px solid transparent;
-    border-radius: 30px;
 }
 .App::after {
     position: absolute;
@@ -43,11 +42,26 @@ a {
     background: linear-gradient(145deg,#00DDFF,#FF44EE);
     content: '';
     z-index: -1;
-    border-radius: 32px;
-    transform: rotate(1deg);
+}
+
+@media (min-width: 496px) {
+    .App {
+        border-radius: 30px;
+        padding: 36px;
+        padding-top: 48px;
+        padding-bottom: 32px;
+    }
+    .App::after {
+        border-radius: 32px;
+        transform: rotate(1deg);
+    }
 }
 
 footer {
     font-size: 14px;
     text-align: center;
+}
+
+span.avoidwrap {
+    display: inline-block;
 }

@@ -16,7 +16,8 @@ class Header extends Component {
 		return (
 			<header>
         		<p className={titleClasses} style={cssAppTitle}>
-					<span role="img" aria-label="">🎧</span> mutual music
+					<span role="img" aria-label="">🎧 </span>
+					<span class="avoidwrap">mutual music</span>
 				</p>
 				<p className={subtitleClasses}>
 					Generate a playlist of songs that you and a friend both love.

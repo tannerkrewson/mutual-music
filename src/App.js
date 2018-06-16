@@ -6,6 +6,7 @@ import FriendSelector from './components/FriendSelector';
 import TwoFriends from './components/TwoFriends';
 import Generator from './components/Generator';
 import SpotifyLogin from './components/SpotifyLogin';
+import PlaylistResult from './components/PlaylistResult';
 
 import spotifyUtils from './utils/spotify';
 import mutual from './utils/mutual';
@@ -108,12 +109,18 @@ class App extends Component {
 								selectedUser={this.state.friend}
 							/>
 						}
-						{this.state.friend &&
+						{this.state.friend && !this.state.playlistResult &&
 							<Generator
 								countResult={this.state.countResult}
 								playlistResult={this.state.playlistResult}
 								onMakePlaylist={this.makePlaylist.bind(this)}
 								isLoading={this.state.isLoading}
+								onReset={this.anotherOne.bind(this)}
+							/>
+						}
+						{this.state.playlistResult &&
+							<PlaylistResult
+								playlistResult={this.state.playlistResult}
 								onReset={this.anotherOne.bind(this)}
 							/>
 						}

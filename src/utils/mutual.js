@@ -1,20 +1,14 @@
 function getListOfMutualSongs (spotifyApi, friendsUserID) {
 	let playlistSongSet, savedSongSet, thisUsersSongsSet, friendsSongsSet;
 	return getThisUsersPlaylistSongs(spotifyApi).then((data) => {
-		console.log('this user\'s playlist songs');
-		console.log(data);
 		playlistSongSet = data;
 	}).then(
 		() => getThisUsersSavedTracks(spotifyApi)
 	).then((data) => {
-		console.log('this user\'s saved songs');
-		console.log(data);
 		savedSongSet = data;
 	}).then(
 		() => getFriendsPlaylistSongs(spotifyApi, friendsUserID)
 	).then((data) => {
-		console.log('friend\'s playlist songs');
-		console.log(data);
 		friendsSongsSet = data;
 	}).then((data) => {
 		// combine all of the songs into one set
@@ -74,7 +68,6 @@ function getTrackSet (trackApiCall, limit, playlistLength) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
-	console.log('NEW CALL\n--A');
 	return trackApiCall({ limit }).then((res) => {
 
 		let songs = new Set();
@@ -92,7 +85,6 @@ function getTrackSet (trackApiCall, limit, playlistLength) {
 
 		for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
 			nextPromise = nextPromise.then(() => {
-				console.log('--A');
 				return trackApiCall({ offset, limit });
 			}).then((data) => {
 				addSongsToSet(songs, data.items);
@@ -100,15 +92,12 @@ function getTrackSet (trackApiCall, limit, playlistLength) {
 		}
 
 		return nextPromise.then(() => {
-			console.log(songs);
 			return songs;
 
 		});
 	});
 
 	function addSongsToSet (songsSet, newSongs) {
-		console.log('--B: ' + songsSet.size + ' += ' + newSongs.length);
-
 		for (let song of newSongs) {
 			// this prevents local songs from polluting our sets
 			if (song.track.id) {
@@ -129,8 +118,6 @@ function getMutualSet (set1, set2) {
 	var res = [];
 	for (const song of set1) {
 		// if the other set has the key
-		console.log(song);
-
 		if (song && set2.has( song )) {
 			res.push('spotify:track:' + song);
 		}

@@ -2,10 +2,16 @@ import React, { Component } from "react";
 
 class LoadingPhase extends Component {
 	render() {
+		let percent = 0;
+		if (this.props.songsSoFar >= 0 && this.props.songsTotal > 0) {
+			percent = Math.ceil(
+				(this.props.songsSoFar / this.props.songsTotal) * 100
+			);
+		}
 		let progress = {
-			width: this.props.progress + "%"
+			width: percent + "%"
 		};
-		if (this.props.noBar) progress.display = "none";
+		if (this.props.noBar) progress.visibility = "hidden";
 		return (
 			<div>
 				<h4>{this.props.title}</h4>
@@ -16,7 +22,7 @@ class LoadingPhase extends Component {
 						role="progressbar"
 						style={progress}
 					>
-						{this.props.progress}%
+						{this.props.songsSoFar} of {this.props.songsTotal} songs
 					</div>
 				</div>
 				<p style={{ height: "2em" }}>{this.props.subtitle}</p>

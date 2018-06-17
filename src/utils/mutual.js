@@ -86,23 +86,21 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 	let status = loading.get();
 
 	status.isActive = true;
-	status.progress = 0;
 	loading.update();
 
 	return spotifyApi
 		.getUserPlaylists(otherUserID)
 		.then(function(dataFromSpotify) {
-			const FIRST_PROG = 10;
-			const DONE_PROG = 100;
-			status.progress = FIRST_PROG;
-			loading.update();
-
 			let totalSet = new Set();
 			let nextPromise = Promise.resolve();
 			let allPlaylists = dataFromSpotify.items;
 
 			let numPlaylists = allPlaylists.length;
 			let numSongsInAllPlaylists = getTotalNumberOfSongs(allPlaylists);
+
+			status.songsSoFar = 0;
+			status.songsTotal = numSongsInAllPlaylists;
+			loading.update();
 
 			for (let i = 0; i < numPlaylists; i++) {
 				let pl = allPlaylists[i];
@@ -112,19 +110,8 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 						status.subtitle = "Checking " + pl.name;
 						loading.update();
 
-						let progress = percent => {
-							// get a percent of how far we are so far
-							let numSongsInSet = totalSet.size;
-							let numSongsInThisPlaylist = pl.tracks.total;
-							let numSongsLoadedSoFar =
-								numSongsInSet + numSongsInThisPlaylist * percent;
-							let percentProgress =
-								numSongsLoadedSoFar / numSongsInAllPlaylists;
-
-							// calculate the progress out of 100
-							status.progress = Math.ceil(
-								(DONE_PROG - FIRST_PROG) * percentProgress + FIRST_PROG
-							);
+						let progress = numNewlyCompletedSongs => {
+							status.songsSoFar += numNewlyCompletedSongs;
 							loading.update();
 						};
 
@@ -140,12 +127,16 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 					.then(plSet => {
 						// add all of those songs to the totalSet
 						concatSets(totalSet, plSet);
+
+						// reset the songs so far to the amount we actually have in the set for "accuracy"
+						// this might make the progress bar jump backwards if there were a lot of local songs
+						status.songsSoFar = totalSet.size;
+						loading.update();
 					});
 			}
 			return nextPromise.then(() => {
 				status.isActive = false;
 				status.isDone = true;
-				status.progress = DONE_PROG;
 				loading.update();
 
 				return totalSet;
@@ -175,8 +166,16 @@ function getThisUsersSavedTracks(spotifyApi, loading) {
 	status.isActive = true;
 	loading.update();
 
-	let progress = percent => {
-		status.progress = Math.ceil(percent * 100);
+	let progress = (numNewlyCompletedSongs, numTotalSongs, lastSongTitle) => {
+		if (status.songsSoFar === -1) status.songsSoFar = 0;
+
+		status.songsSoFar += numNewlyCompletedSongs;
+		status.songsTotal = numTotalSongs;
+
+		if (lastSongTitle) {
+			status.subtitle = "Scanning " + lastSongTitle;
+		}
+
 		loading.update();
 	};
 
@@ -196,8 +195,6 @@ function getThisUsersSavedTracks(spotifyApi, loading) {
 }
 
 function getTrackSet(trackApiCall, limit, playlistLength, progress) {
-	progress(0);
-
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
@@ -211,7 +208,7 @@ function getTrackSet(trackApiCall, limit, playlistLength, progress) {
 			? playlistLength
 			: dataFromSpotify.total;
 
-		progress(songs.size / totalNumberOfSongs);
+		progress(firstSongs.length, totalNumberOfSongs, firstSongs[0].track.name);
 
 		// if we were able to get all of the songs already, because
 		// the the number of songs was less than the limit for one
@@ -226,9 +223,11 @@ function getTrackSet(trackApiCall, limit, playlistLength, progress) {
 					return trackApiCall({ offset, limit });
 				})
 				.then(data => {
-					addSongsToSet(songs, data.items);
+					let newSongs = data.items;
+					addSongsToSet(songs, newSongs);
 
-					progress(songs.size / totalNumberOfSongs);
+					// increase the progress bar with the number of songs that came through in this call
+					progress(newSongs.length, totalNumberOfSongs, newSongs[0].track.name);
 				});
 		}
 
@@ -280,7 +279,8 @@ function getInitialLoadingStatus(statusList) {
 		res.push({
 			title,
 			subtitle: "",
-			progress: 0,
+			songsSoFar: -1,
+			songsTotal: 0,
 			isDone: false,
 			isActive: false
 		});
@@ -305,7 +305,6 @@ function getPhaseLoadingStatusFuncs(
 
 function getTotalNumberOfSongs(playlists) {
 	let count = 0;
-
 	for (let pl of playlists) {
 		count += pl.tracks.total;
 	}

@@ -22,7 +22,8 @@ class Loading extends Component {
 						key={i}
 						title={phase.title}
 						subtitle={phase.subtitle}
-						progress={phase.progress}
+						songsSoFar={phase.songsSoFar}
+						songsTotal={phase.songsTotal}
 						isDone={phase.isDone}
 						isActive={phase.isActive}
 					/>

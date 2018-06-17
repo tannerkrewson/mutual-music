@@ -3,7 +3,7 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 		/* PHASE LIST */
 		/* 0 */ "Getting all of the songs on your playlists...",
 		/* 1 */ "Scanning all of your saved tracks...",
-		/* 2 */ "Loading your all of the songs on your friend's public playlists...",
+		/* 2 */ "Loading all of the songs on your friend's public playlists...",
 		/* 3 */ "Finding mutual songs..."
 	]);
 	setLoadingStatus(loadingStatus);
@@ -19,8 +19,8 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 				getPhaseLoadingStatusFuncs(0, loadingStatus, setLoadingStatus)
 			)
 		)
-		.then(data => {
-			playlistSongSet = data;
+		.then(songsFromSpotify => {
+			playlistSongSet = songsFromSpotify;
 		})
 		.then(() =>
 			/* PHASE 1 */
@@ -29,8 +29,8 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 				getPhaseLoadingStatusFuncs(1, loadingStatus, setLoadingStatus)
 			)
 		)
-		.then(data => {
-			savedSongSet = data;
+		.then(songsFromSpotify => {
+			savedSongSet = songsFromSpotify;
 		})
 		.then(() =>
 			/* PHASE 2 */
@@ -40,52 +40,112 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 				getPhaseLoadingStatusFuncs(2, loadingStatus, setLoadingStatus)
 			)
 		)
-		.then(data => {
-			friendsSongsSet = data;
+		.then(songsFromSpotify => {
+			friendsSongsSet = songsFromSpotify;
 		})
 		.then(data => {
 			/* PHASE 3 */
+			let loading = getPhaseLoadingStatusFuncs(
+				3,
+				loadingStatus,
+				setLoadingStatus
+			);
+			let status = loading.get();
+
+			status.isActive = true;
+			status.progress = 0;
+			loading.update();
 
 			// combine all of the songs into one set
 			thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
 
-			// find the mutual songs and
-			return getMutualSet(thisUsersSongsSet, friendsSongsSet);
+			status.progress = 50;
+			loading.update();
+
+			// find the mutual songs
+			let mutualSet = getMutualSet(thisUsersSongsSet, friendsSongsSet);
+
+			status.isDone = true;
+			status.isActive = false;
+			status.progress = 100;
+			loading.update();
+
+			return mutualSet;
 		});
 }
 
-function getThisUsersPlaylistSongs(spotifyApi) {
-	return getPlaylistSongsByUserID(spotifyApi, null);
+function getThisUsersPlaylistSongs(spotifyApi, loading) {
+	return getPlaylistSongsByUserID(spotifyApi, null, loading);
 }
 
-function getFriendsPlaylistSongs(spotifyApi, userIDofFriend) {
-	return getPlaylistSongsByUserID(spotifyApi, userIDofFriend);
+function getFriendsPlaylistSongs(spotifyApi, userIDofFriend, loading) {
+	return getPlaylistSongsByUserID(spotifyApi, userIDofFriend, loading);
 }
 
-function getPlaylistSongsByUserID(spotifyApi, otherUserID) {
-	return spotifyApi.getUserPlaylists(otherUserID).then(function(data) {
-		let totalSet = new Set();
-		let nextPromise = Promise.resolve();
+function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
+	let status = loading.get();
 
-		for (let pl of data.items) {
-			//const wasCreatedByThisUser = pl.owner.id === otherUserID || pl.owner.id === spotifyApi.id;
-			nextPromise = nextPromise
-				.then(() => {
-					// get a set of all of the songs in the playlist
-					return getSongsOfPlaylist(
-						pl.owner.id,
-						pl.id,
-						pl.tracks.total,
-						spotifyApi
-					);
-				})
-				.then(plSet => {
-					// add all of those songs to the totalSet
-					concatSets(totalSet, plSet);
-				});
-		}
-		return nextPromise.then(() => totalSet);
-	});
+	status.isActive = true;
+	status.progress = 0;
+	loading.update();
+
+	return spotifyApi
+		.getUserPlaylists(otherUserID)
+		.then(function(dataFromSpotify) {
+			const FIRST_PROG = 10;
+			const DONE_PROG = 100;
+			status.progress = FIRST_PROG;
+			loading.update();
+
+			let totalSet = new Set();
+			let nextPromise = Promise.resolve();
+			let allPlaylists = dataFromSpotify.items;
+
+			let numPlaylists = allPlaylists.length;
+			let numSongs = getTotalNumberOfSongs(allPlaylists);
+			let numSongsSoFar = 0;
+
+			for (let i = 0; i < numPlaylists; i++) {
+				let pl = allPlaylists[i];
+				//const wasCreatedByThisUser = pl.owner.id === otherUserID || pl.owner.id === spotifyApi.id;
+				nextPromise = nextPromise
+					.then(() => {
+						status.subtitle = "Checking " + pl.name;
+						loading.update();
+
+						// get a set of all of the songs in the playlist
+						return getSongsOfPlaylist(
+							pl.owner.id,
+							pl.id,
+							pl.tracks.total,
+							spotifyApi
+						);
+					})
+					.then(plSet => {
+						// add all of those songs to the totalSet
+						concatSets(totalSet, plSet);
+
+						// add the number of tracks from pl to the running count
+						numSongsSoFar += pl.tracks.total;
+
+						// get a percent of how far we are so far
+						let percentProgress = numSongsSoFar / numSongs;
+
+						// calculate the progress out of 100
+						status.progress = Math.ceil(
+							(DONE_PROG - FIRST_PROG) * percentProgress + FIRST_PROG
+						);
+						loading.update();
+					});
+			}
+			return nextPromise.then(() => {
+				status.isActive = false;
+				status.isDone = true;
+				loading.update();
+
+				return totalSet;
+			});
+		});
 }
 
 function getSongsOfPlaylist(userId, playlistId, playlistLength, spotifyApi) {
@@ -97,16 +157,27 @@ function getSongsOfPlaylist(userId, playlistId, playlistLength, spotifyApi) {
 	);
 }
 
-function getThisUsersSavedTracks(spotifyApi) {
+function getThisUsersSavedTracks(spotifyApi, loading) {
+	let status = loading.get();
+
+	status.isActive = true;
+	loading.update();
+
 	// the limit of 50 is the max the API allows for getMySavedTracks
 	return getTrackSet(
 		options => spotifyApi.getMySavedTracks(options),
 		50,
 		undefined
-	);
+	).then(passthrough => {
+		status.isActive = false;
+		status.isDone = true;
+		loading.update();
+
+		return passthrough;
+	});
 }
 
-function getTrackSet(trackApiCall, limit, playlistLength) {
+function getTrackSet(trackApiCall, limit, playlistLength, loading) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
@@ -134,9 +205,7 @@ function getTrackSet(trackApiCall, limit, playlistLength) {
 				});
 		}
 
-		return nextPromise.then(() => {
-			return songs;
-		});
+		return nextPromise.then(() => songs);
 	});
 
 	function addSongsToSet(songsSet, newSongs) {
@@ -179,8 +248,17 @@ function addSongsToPlaylist(userId, playlistId, songList, spotifyApi) {
 }
 
 function getInitialLoadingStatus(statusList) {
-	// TODO
-	return {};
+	let res = [];
+	for (let title of statusList) {
+		res.push({
+			title,
+			subtitle: "",
+			progress: 0,
+			isDone: false,
+			isActive: false
+		});
+	}
+	return res;
 }
 
 function getPhaseLoadingStatusFuncs(
@@ -190,13 +268,21 @@ function getPhaseLoadingStatusFuncs(
 ) {
 	return {
 		get: () => {
-			setLoadingStatus(currentLoadingStatus[phaseNum]);
+			return currentLoadingStatus[phaseNum];
 		},
-		set: newStatus => {
-			currentLoadingStatus[phaseNum] = newStatus;
+		update: () => {
 			setLoadingStatus(currentLoadingStatus);
 		}
 	};
+}
+
+function getTotalNumberOfSongs(playlists) {
+	let count = 0;
+
+	for (let pl of playlists) {
+		count += pl.tracks.total;
+	}
+	return count;
 }
 
 module.exports = { getListOfMutualSongs, addSongsToPlaylist };

@@ -127,11 +127,6 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 					.then(plSet => {
 						// add all of those songs to the totalSet
 						concatSets(totalSet, plSet);
-
-						// reset the songs so far to the amount we actually have in the set for "accuracy"
-						// this might make the progress bar jump backwards if there were a lot of local songs
-						status.songsSoFar = totalSet.size;
-						loading.update();
 					});
 			}
 			return nextPromise.then(() => {

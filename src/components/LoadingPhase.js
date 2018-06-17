@@ -8,10 +8,13 @@ class LoadingPhase extends Component {
 				(this.props.songsSoFar / this.props.songsTotal) * 100
 			);
 		}
+
 		let progress = {
 			width: percent + "%"
 		};
+
 		if (this.props.noBar) progress.visibility = "hidden";
+
 		return (
 			<div>
 				<h4>{this.props.title}</h4>

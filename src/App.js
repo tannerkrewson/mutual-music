@@ -84,7 +84,7 @@ class App extends Component {
 		this.state.spotify
 			.createPlaylist(this.state.user.id, {
 				name: "me and " + friendName + "'s mutual songs",
-				description: "Made with Mutual Music: tannerkrewson.com/mutual-music"
+				description: "Made with tannerkrewson.com/mutual-music"
 			})
 			.then(function(playlist) {
 				self.setState({

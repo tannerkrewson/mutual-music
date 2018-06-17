@@ -33,14 +33,13 @@ a {
 	padding: 12px;
 	padding-top: 24px;
 	padding-bottom: 18px;
-	border: 1px solid transparent;
 }
 .App::after {
 	position: absolute;
 	top: -12px;
 	bottom: -12px;
-	left: -12px;
-	right: -12px;
+	left: 0px;
+	right: 0px;
 	background: linear-gradient(145deg, #00ddff, #ff44ee);
 	content: "";
 	z-index: -1;
@@ -57,7 +56,14 @@ a {
 	.App::after {
 		border-radius: 32px;
 		transform: rotate(1deg);
+		left: -12px;
+		right: -12px;
 	}
+}
+
+.row {
+	margin-left: -12px;
+	margin-right: -12px;
 }
 
 footer {

@@ -23,11 +23,6 @@ const butGroup = {
 	paddingTop: "12px"
 };
 
-const butGroupGroup = {
-	display: "flex",
-	justifyContent: "center"
-};
-
 const icon = {
 	background: "white",
 	borderRadius: "6px",

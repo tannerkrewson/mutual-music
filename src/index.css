@@ -48,6 +48,7 @@ a {
 
 @media (min-width: 496px) {
 	.App {
+		margin: 5% auto auto auto;
 		border-radius: 30px;
 		padding: 36px;
 		padding-top: 48px;

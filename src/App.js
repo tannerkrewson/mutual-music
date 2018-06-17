@@ -137,14 +137,14 @@ class App extends Component {
 									onReset={this.anotherOne.bind(this)}
 								/>
 							)}
+						{this.state.isLoading && (
+							<Loading status={this.state.loadingStatus} />
+						)}
 						{this.state.playlistResult && (
 							<PlaylistResult
 								playlistResult={this.state.playlistResult}
 								onReset={this.anotherOne.bind(this)}
 							/>
-						)}
-						{this.state.isLoading && (
-							<Loading status={this.state.loadingStatus} />
 						)}
 						<footer>
 							Mutual Music by{" "}

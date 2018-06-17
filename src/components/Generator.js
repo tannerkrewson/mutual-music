@@ -19,12 +19,11 @@ class Generator extends Component {
 	render() {
 		var countString;
 		if (this.props.countResult === 0) {
-			countString = "You guys don't have any mutual songs. ;(";
+			countString = "You don't have any mutual songs. ;(";
 		} else if (this.props.countResult === 1) {
-			countString = "You guys only have one mutual song.";
+			countString = "You only have one mutual song.";
 		} else {
-			countString =
-				"You guys have " + this.props.countResult + " mutual songs!";
+			countString = "You have " + this.props.countResult + " mutual songs!";
 		}
 		return (
 			<div style={cssCenter}>

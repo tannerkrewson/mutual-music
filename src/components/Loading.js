@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import LoadingPhase from "./LoadingPhase";
+
 const cssCenter = {
 	textAlign: "center",
 	paddingTop: "16px",
@@ -8,12 +10,26 @@ const cssCenter = {
 
 class Loading extends Component {
 	render() {
-		return (
-			<div style={cssCenter}>
-				<h3>Loading...</h3>
-				<code>{JSON.stringify(this.props.status)}</code>
-			</div>
-		);
+		let status = this.props.status;
+		let phases = [];
+
+		if (Array.isArray(status)) {
+			for (let i in status) {
+				let phase = status[i];
+				if (!phase.isActive) continue;
+				phases.push(
+					<LoadingPhase
+						key={i}
+						title={phase.title}
+						subtitle={phase.subtitle}
+						progress={phase.progress}
+						isDone={phase.isDone}
+						isActive={phase.isActive}
+					/>
+				);
+			}
+		}
+		return <div style={cssCenter}>{phases}</div>;
 	}
 }
 

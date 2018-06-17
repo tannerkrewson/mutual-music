@@ -5,6 +5,7 @@ import TwoFriends from "./components/TwoFriends";
 import Generator from "./components/Generator";
 import SpotifyLogin from "./components/SpotifyLogin";
 import PlaylistResult from "./components/PlaylistResult";
+import Loading from "./components/Loading";
 
 import spotifyUtils from "./utils/spotify";
 import mutual from "./utils/mutual";
@@ -29,7 +30,8 @@ class App extends Component {
 		this.state = {
 			spotify: spotifyApi,
 			isLoggedIn: !!spotifyHash,
-			isLoading: false
+			isLoading: false,
+			loadingStatus: {}
 		};
 	}
 	onFriendSelected(userID) {
@@ -54,23 +56,29 @@ class App extends Component {
 		});
 	}
 	findCount() {
-		mutual.getListOfMutualSongs(this.state.spotify, this.state.friend.id).then(
-			songs => {
-				// success
-				this.setState({
-					mutualSongs: songs,
-					countResult: songs.length,
-					isLoading: false
-				});
-			},
-			err => {
-				// fail
-				this.setState({
-					isLoading: false
-				});
-				console.error(err);
-			}
-		);
+		mutual
+			.getListOfMutualSongs(
+				this.state.spotify,
+				this.state.friend.id,
+				this.setLoadingStatus.bind(this)
+			)
+			.then(
+				songs => {
+					// success
+					this.setState({
+						mutualSongs: songs,
+						countResult: songs.length,
+						isLoading: false
+					});
+				},
+				err => {
+					// fail
+					this.setState({
+						isLoading: false
+					});
+					console.error(err);
+				}
+			);
 	}
 	makePlaylist() {
 		this.setState({
@@ -99,6 +107,9 @@ class App extends Component {
 				);
 			});
 	}
+	setLoadingStatus(loadingStatus) {
+		this.setState({ loadingStatus });
+	}
 	render() {
 		return (
 			<div className="App container">
@@ -117,12 +128,12 @@ class App extends Component {
 								/>
 							)}
 						{this.state.friend &&
-							!this.state.playlistResult && (
+							!this.state.playlistResult &&
+							!this.state.isLoading && (
 								<Generator
 									countResult={this.state.countResult}
 									playlistResult={this.state.playlistResult}
 									onMakePlaylist={this.makePlaylist.bind(this)}
-									isLoading={this.state.isLoading}
 									onReset={this.anotherOne.bind(this)}
 								/>
 							)}
@@ -131,6 +142,9 @@ class App extends Component {
 								playlistResult={this.state.playlistResult}
 								onReset={this.anotherOne.bind(this)}
 							/>
+						)}
+						{this.state.isLoading && (
+							<Loading status={this.state.loadingStatus} />
 						)}
 						<footer>
 							Mutual Music by{" "}

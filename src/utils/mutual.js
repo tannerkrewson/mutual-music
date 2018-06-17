@@ -1,18 +1,51 @@
-function getListOfMutualSongs(spotifyApi, friendsUserID) {
+function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
+	let loadingStatus = getInitialLoadingStatus([
+		/* PHASE LIST */
+		/* 0 */ "Getting all of the songs on your playlists...",
+		/* 1 */ "Scanning all of your saved tracks...",
+		/* 2 */ "Loading your all of the songs on your friend's public playlists...",
+		/* 3 */ "Finding mutual songs..."
+	]);
+	setLoadingStatus(loadingStatus);
+
+	// get all of the songs from spotify, and find the mutuals
 	let playlistSongSet, savedSongSet, thisUsersSongsSet, friendsSongsSet;
-	return getThisUsersPlaylistSongs(spotifyApi)
+	let promise = Promise.resolve();
+	return promise
+		.then(() =>
+			/* PHASE 0 */
+			getThisUsersPlaylistSongs(
+				spotifyApi,
+				getPhaseLoadingStatusFuncs(0, loadingStatus, setLoadingStatus)
+			)
+		)
 		.then(data => {
 			playlistSongSet = data;
 		})
-		.then(() => getThisUsersSavedTracks(spotifyApi))
+		.then(() =>
+			/* PHASE 1 */
+			getThisUsersSavedTracks(
+				spotifyApi,
+				getPhaseLoadingStatusFuncs(1, loadingStatus, setLoadingStatus)
+			)
+		)
 		.then(data => {
 			savedSongSet = data;
 		})
-		.then(() => getFriendsPlaylistSongs(spotifyApi, friendsUserID))
+		.then(() =>
+			/* PHASE 2 */
+			getFriendsPlaylistSongs(
+				spotifyApi,
+				friendsUserID,
+				getPhaseLoadingStatusFuncs(2, loadingStatus, setLoadingStatus)
+			)
+		)
 		.then(data => {
 			friendsSongsSet = data;
 		})
 		.then(data => {
+			/* PHASE 3 */
+
 			// combine all of the songs into one set
 			thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
 
@@ -143,6 +176,27 @@ function addSongsToPlaylist(userId, playlistId, songList, spotifyApi) {
 		);
 	}
 	return Promise.all(promiseList);
+}
+
+function getInitialLoadingStatus(statusList) {
+	// TODO
+	return {};
+}
+
+function getPhaseLoadingStatusFuncs(
+	phaseNum,
+	currentLoadingStatus,
+	setLoadingStatus
+) {
+	return {
+		get: () => {
+			setLoadingStatus(currentLoadingStatus[phaseNum]);
+		},
+		set: newStatus => {
+			currentLoadingStatus[phaseNum] = newStatus;
+			setLoadingStatus(currentLoadingStatus);
+		}
+	};
 }
 
 module.exports = { getListOfMutualSongs, addSongsToPlaylist };

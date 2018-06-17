@@ -17,14 +17,6 @@ const but = {
 
 class Generator extends Component {
 	render() {
-		if (this.props.isLoading) {
-			return (
-				<div style={cssCenter}>
-					<h3>Loading...</h3>
-				</div>
-			);
-		}
-
 		var countString;
 		if (this.props.countResult === 0) {
 			countString = "You guys don't have any mutual songs. ;(";

@@ -17,7 +17,7 @@ class Header extends Component {
 			<header>
 				<p className={titleClasses} style={cssAppTitle}>
 					<MdHeadset style={{ paddingBottom: "2px" }} />{" "}
-					<span class="avoidwrap">mutual music</span>
+					<span className="avoidwrap">mutual music</span>
 				</p>
 				<p className={subtitleClasses}>
 					Generate a playlist of songs that you and a friend both love.

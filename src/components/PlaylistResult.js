@@ -40,21 +40,29 @@ class PlaylistResult extends Component {
 			<div style={css}>
 				<h3>Playlist created!</h3>
 				<p>You can find it at the top of your Spotify playlists.</p>
-				<div
-					className="btn-toolbar"
-					style={butGroupGroup}
-					role="toolbar"
-					aria-label="Toolbar with button groups"
-				>
-					<div className="btn-group mr-2" role="group">
-						<Clipboard
+				<div style={butGroup}>
+					<Clipboard
+						type="button"
+						className="btn btn-info"
+						data-clipboard-text={this.props.playlistResult}
+					>
+						Copy Link
+					</Clipboard>
+					<a
+						href={this.props.playlistResult}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<button
 							type="button"
 							className="btn btn-info"
-							data-clipboard-text={this.props.playlistResult}
+							style={{ marginLeft: "6px" }}
 						>
-							Copy Link
-						</Clipboard>
-					</div>
+							Open Playlist
+						</button>
+					</a>
+				</div>
+				<div style={butGroup}>
 					<div className="btn-group mr-2" role="group">
 						<FacebookShareButton url={this.props.playlistResult}>
 							<FaFacebookSquare style={icon} size={38} color="#3b5998" />

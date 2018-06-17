@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import FaQuestion from "react-icons/lib/fa/question";
+
 const icon = {
 	borderRadius: "50%",
 	height: "48px"
@@ -13,9 +15,8 @@ const user = {
 
 class SpotifyUser extends Component {
 	render() {
-		var firstName = "";
-		var imageUrl =
-			"https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Question_mark_white_icon.svg/768px-Question_mark_white_icon.svg.png";
+		let firstName = "";
+		let imageUrl;
 		if (this.props.user) {
 			if (this.props.user.display_name) {
 				firstName = this.props.user.display_name.trim().split(" ")[0];
@@ -28,7 +29,8 @@ class SpotifyUser extends Component {
 		}
 		return (
 			<div style={user}>
-				<img src={imageUrl} style={icon} alt="" />
+				{imageUrl && <img src={imageUrl} style={icon} alt={firstName} />}
+				{!imageUrl && <FaQuestion size={48} />}
 				<br />
 				<span>{firstName}</span>
 			</div>

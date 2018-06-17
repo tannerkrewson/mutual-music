@@ -53,7 +53,7 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 			let status = loading.get();
 
 			status.isActive = true;
-			status.progress = 0;
+			status.noBar = true;
 			loading.update();
 
 			// combine all of the songs into one set

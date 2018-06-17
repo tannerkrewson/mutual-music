@@ -5,6 +5,7 @@ class LoadingPhase extends Component {
 		let progress = {
 			width: this.props.progress + "%"
 		};
+		if (this.props.noBar) progress.display = "none";
 		return (
 			<div>
 				<h4>{this.props.title}</h4>

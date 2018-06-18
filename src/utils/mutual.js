@@ -1,4 +1,6 @@
 const WAIT_AFTER_PHASE = 2; // seconds
+const WAIT_TO_RETRY = 2; // seconds
+const REQUEST_MAX_RETRIES = 8;
 
 function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 	let loadingStatus = getInitialLoadingStatus([
@@ -8,6 +10,8 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 		/* 2 */ "Loading your friend's first 20 public playlists..."
 	]);
 	setLoadingStatus(loadingStatus);
+
+	let retries = { left: REQUEST_MAX_RETRIES };
 
 	let phases = [
 		/* Phase 0 */ getThisUsersPlaylistSongs,
@@ -37,7 +41,7 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 			})
 			.then(() =>
 				// run this phase's call to spotify
-				phaseFunction(spotifyApi, loading, friendsUserID)
+				phaseFunction(spotifyApi, loading, retries, friendsUserID)
 			)
 			.then(songsFromSpotify => {
 				// then, take the songs from the call and save them here
@@ -79,19 +83,19 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 	});
 }
 
-function getThisUsersPlaylistSongs(spotifyApi, loading) {
-	return getPlaylistSongsByUserID(spotifyApi, null, loading);
+function getThisUsersPlaylistSongs(spotifyApi, loading, retries) {
+	return getPlaylistSongsByUserID(spotifyApi, null, loading, retries);
 }
 
-function getFriendsPlaylistSongs(spotifyApi, loading, userIDofFriend) {
-	return getPlaylistSongsByUserID(spotifyApi, userIDofFriend, loading);
+function getFriendsPlaylistSongs(spotifyApi, loading, retries, userIDofFriend) {
+	return getPlaylistSongsByUserID(spotifyApi, userIDofFriend, loading, retries);
 }
 
-function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
+function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading, retries) {
 	let status = loading.get();
 
 	return spotifyApi.getUserPlaylists(otherUserID).then(
-		function(dataFromSpotify) {
+		dataFromSpotify => {
 			let totalSet = new Set();
 			let nextPromise = Promise.resolve();
 			let allPlaylists = dataFromSpotify.items;
@@ -120,7 +124,13 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 						};
 
 						// get a set of all of the songs in the playlist
-						return getSongsOfPlaylist(pl.owner.id, pl.id, spotifyApi, progress);
+						return getSongsOfPlaylist(
+							pl.owner.id,
+							pl.id,
+							spotifyApi,
+							progress,
+							retries
+						);
 					})
 					.then(plSet => {
 						// add all of those songs to the totalSet
@@ -130,22 +140,30 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 			return nextPromise.then(() => totalSet);
 		},
 		err => {
-			// retry the same call to spotify if it fails
-			return getPlaylistSongsByUserID(spotifyApi, otherUserID, loading);
+			handleRequestFail(retries, err, () => {
+				// retry the same call to spotify if it fails
+				return getPlaylistSongsByUserID(
+					spotifyApi,
+					otherUserID,
+					loading,
+					retries
+				);
+			});
 		}
 	);
 }
 
-function getSongsOfPlaylist(userId, playlistId, spotifyApi, progress) {
+function getSongsOfPlaylist(userId, playlistId, spotifyApi, progress, retries) {
 	// the limit of 100 is the max the API allows for getPlaylistTracks
 	return getTrackSet(
 		options => spotifyApi.getPlaylistTracks(userId, playlistId, options),
 		100,
-		progress
+		progress,
+		retries
 	);
 }
 
-function getThisUsersSavedTracks(spotifyApi, loading) {
+function getThisUsersSavedTracks(spotifyApi, loading, retries) {
 	let status = loading.get();
 
 	// called everytime a batch of new songs comes in from spotify.
@@ -167,11 +185,12 @@ function getThisUsersSavedTracks(spotifyApi, loading) {
 	return getTrackSet(
 		options => spotifyApi.getMySavedTracks(options),
 		50,
-		progress
+		progress,
+		retries
 	).then(passthrough => passthrough);
 }
 
-function getTrackSet(trackApiCall, limit, progress) {
+function getTrackSet(trackApiCall, limit, progress, retries) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
@@ -206,8 +225,10 @@ function getTrackSet(trackApiCall, limit, progress) {
 			return nextPromise.then(() => songs);
 		},
 		err => {
-			// retry the same call to spotify if it fails
-			return getTrackSet(trackApiCall, limit, progress);
+			handleRequestFail(retries, err, () => {
+				// retry the same call to spotify if it fails
+				return getTrackSet(trackApiCall, limit, progress, retries);
+			});
 		}
 	);
 
@@ -225,8 +246,10 @@ function getTrackSet(trackApiCall, limit, progress) {
 				);
 			},
 			err => {
-				// retry the same call to spotify if it fails
-				return makeTheCall(offset, songs, totalNumberOfSongs);
+				handleRequestFail(retries, err, () => {
+					// retry the same call to spotify if it fails
+					return makeTheCall(offset, songs, totalNumberOfSongs);
+				});
 			}
 		);
 	}
@@ -276,6 +299,18 @@ function addSongsToPlaylist(userId, playlistId, songList, spotifyApi) {
 		);
 	}
 	return nextPromise;
+}
+
+function handleRequestFail(retries, err, next) {
+	console.log(retries.left);
+
+	retries.left--;
+
+	// if we're out of request retries, show an error to the user
+	if (retries.left < 0) throw err;
+
+	// wait for a bit, and retry the call
+	return wait(WAIT_TO_RETRY)().then(next());
 }
 
 function getInitialLoadingStatus(statusList) {

@@ -178,17 +178,11 @@ function getTrackSet(trackApiCall, limit, progress) {
 
 		let totalNumberOfSongs = dataFromSpotify.total;
 
-		// this is me singing Wish You Were Here to Lodash
-		let firstSongNameValid =
-			firstSongs &&
-			firstSongs[0] &&
-			firstSongs[0].track &&
-			firstSongs[0].track.name;
-
-		let firstSongTitle = firstSongNameValid
-			? firstSongs[0].track.name
-			: "songs";
-		progress(firstSongs.length, totalNumberOfSongs, firstSongTitle);
+		progress(
+			firstSongs.length,
+			totalNumberOfSongs,
+			getFirstSongTitle(firstSongs)
+		);
 
 		// if we were able to get all of the songs already, because
 		// the the number of songs was less than the limit for one
@@ -207,14 +201,11 @@ function getTrackSet(trackApiCall, limit, progress) {
 					addSongsToSet(songs, newSongs);
 
 					// increase the progress bar with the number of songs that came through in this call
-					firstSongTitle =
-						newSongs &&
-						newSongs[0] &&
-						newSongs[0].track &&
-						newSongs[0].track.name
-							? newSongs[0].track.name
-							: "";
-					progress(newSongs.length, totalNumberOfSongs, firstSongTitle);
+					progress(
+						newSongs.length,
+						totalNumberOfSongs,
+						getFirstSongTitle(newSongs)
+					);
 				});
 		}
 
@@ -228,6 +219,14 @@ function getTrackSet(trackApiCall, limit, progress) {
 				songsSet.add(song.track.id);
 			}
 		}
+	}
+
+	function getFirstSongTitle(songs) {
+		// this is me singing Wish You Were Here to Lodash
+		let firstSongNameValid =
+			songs && songs[0] && songs[0].track && songs[0].track.name;
+
+		return firstSongNameValid ? songs[0].track.name : "songs";
 	}
 }
 

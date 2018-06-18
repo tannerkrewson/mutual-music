@@ -203,7 +203,14 @@ function getTrackSet(trackApiCall, limit, playlistLength, progress) {
 			? playlistLength
 			: dataFromSpotify.total;
 
-		progress(firstSongs.length, totalNumberOfSongs, firstSongs[0].track.name);
+		let firstSongTitle =
+			firstSongs &&
+			firstSongs[0] &&
+			firstSongs[0].track &&
+			firstSongs[0].track.name
+				? firstSongs[0].track.name
+				: "";
+		progress(firstSongs.length, totalNumberOfSongs, firstSongTitle);
 
 		// if we were able to get all of the songs already, because
 		// the the number of songs was less than the limit for one
@@ -222,7 +229,14 @@ function getTrackSet(trackApiCall, limit, playlistLength, progress) {
 					addSongsToSet(songs, newSongs);
 
 					// increase the progress bar with the number of songs that came through in this call
-					progress(newSongs.length, totalNumberOfSongs, newSongs[0].track.name);
+					firstSongTitle =
+						newSongs &&
+						newSongs[0] &&
+						newSongs[0].track &&
+						newSongs[0].track.name
+							? newSongs[0].track.name
+							: "";
+					progress(newSongs.length, totalNumberOfSongs, firstSongTitle);
 				});
 		}
 

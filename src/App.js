@@ -6,6 +6,7 @@ import Generator from "./components/Generator";
 import SpotifyLogin from "./components/SpotifyLogin";
 import PlaylistResult from "./components/PlaylistResult";
 import Loading from "./components/Loading";
+import Error from "./components/Error";
 
 import spotifyUtils from "./utils/spotify";
 import mutual from "./utils/mutual";
@@ -52,7 +53,8 @@ class App extends Component {
 			friend: null,
 			isLoading: false,
 			countResult: null,
-			playlistResult: null
+			playlistResult: null,
+			errorStatus: null
 		});
 	}
 	findCount() {
@@ -73,8 +75,16 @@ class App extends Component {
 				},
 				err => {
 					// fail
+					let errorStatus;
+					if (err.response) {
+						let errorRes = JSON.parse(err.response);
+						if (errorRes.error && errorRes.error.message) {
+							errorStatus = "Spotify " + errorRes.error.message;
+						}
+					}
 					this.setState({
-						isLoading: false
+						isLoading: false,
+						errorStatus
 					});
 					console.error(err);
 				}
@@ -111,39 +121,54 @@ class App extends Component {
 		this.setState({ loadingStatus });
 	}
 	render() {
+		let showLogin = !this.state.isLoggedIn;
+		let showFriendSelector = this.state.isLoggedIn && !this.state.friend;
+		let showPlaylistResult = !!this.state.playlistResult;
+		let showMutualCount =
+			!showFriendSelector && !showPlaylistResult && this.state.countResult;
+		let showLoading = this.state.isLoading;
+
+		let showError =
+			!showLogin &&
+			!showFriendSelector &&
+			!showPlaylistResult &&
+			!showMutualCount &&
+			!showLoading;
+
 		return (
 			<div className="App container">
 				<div className="row">
 					<div className="col-md-12">
 						<Header isLoggedIn={this.state.isLoggedIn} />
-						{!this.state.isLoggedIn && <SpotifyLogin />}
+						{showLogin && <SpotifyLogin />}
 						{this.state.isLoggedIn && (
 							<TwoFriends user={this.state.user} friend={this.state.friend} />
 						)}
-						{this.state.isLoggedIn &&
-							!this.state.friend && (
-								<FriendSelector
-									onValidUserId={this.onFriendSelected.bind(this)}
-									selectedUser={this.state.friend}
-								/>
-							)}
-						{this.state.friend &&
-							!this.state.playlistResult &&
-							!this.state.isLoading && (
-								<Generator
-									countResult={this.state.countResult}
-									playlistResult={this.state.playlistResult}
-									onMakePlaylist={this.makePlaylist.bind(this)}
-									onReset={this.anotherOne.bind(this)}
-								/>
-							)}
-						{this.state.isLoading && (
-							<Loading status={this.state.loadingStatus} />
+						{showFriendSelector && (
+							<FriendSelector
+								onValidUserId={this.onFriendSelected.bind(this)}
+								selectedUser={this.state.friend}
+							/>
 						)}
-						{this.state.playlistResult && (
+						{showMutualCount && (
+							<Generator
+								countResult={this.state.countResult}
+								playlistResult={this.state.playlistResult}
+								onMakePlaylist={this.makePlaylist.bind(this)}
+								onReset={this.anotherOne.bind(this)}
+							/>
+						)}
+						{showLoading && <Loading status={this.state.loadingStatus} />}
+						{showPlaylistResult && (
 							<PlaylistResult
 								playlistResult={this.state.playlistResult}
 								onReset={this.anotherOne.bind(this)}
+							/>
+						)}
+						{showError && (
+							<Error
+								onReset={this.anotherOne.bind(this)}
+								reason={this.state.errorStatus}
 							/>
 						)}
 						<footer>

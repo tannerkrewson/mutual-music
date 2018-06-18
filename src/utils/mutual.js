@@ -116,13 +116,7 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 						};
 
 						// get a set of all of the songs in the playlist
-						return getSongsOfPlaylist(
-							pl.owner.id,
-							pl.id,
-							pl.tracks.total,
-							spotifyApi,
-							progress
-						);
+						return getSongsOfPlaylist(pl.owner.id, pl.id, spotifyApi, progress);
 					})
 					.then(plSet => {
 						// add all of those songs to the totalSet
@@ -139,18 +133,11 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 		});
 }
 
-function getSongsOfPlaylist(
-	userId,
-	playlistId,
-	playlistLength,
-	spotifyApi,
-	progress
-) {
+function getSongsOfPlaylist(userId, playlistId, spotifyApi, progress) {
 	// the limit of 100 is the max the API allows for getPlaylistTracks
 	return getTrackSet(
 		options => spotifyApi.getPlaylistTracks(userId, playlistId, options),
 		100,
-		playlistLength,
 		progress
 	);
 }
@@ -178,7 +165,6 @@ function getThisUsersSavedTracks(spotifyApi, loading) {
 	return getTrackSet(
 		options => spotifyApi.getMySavedTracks(options),
 		50,
-		undefined,
 		progress
 	).then(passthrough => {
 		status.isActive = false;
@@ -189,7 +175,7 @@ function getThisUsersSavedTracks(spotifyApi, loading) {
 	});
 }
 
-function getTrackSet(trackApiCall, limit, playlistLength, progress) {
+function getTrackSet(trackApiCall, limit, progress) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
@@ -199,9 +185,7 @@ function getTrackSet(trackApiCall, limit, playlistLength, progress) {
 		let firstSongs = dataFromSpotify.items;
 		addSongsToSet(songs, firstSongs);
 
-		let totalNumberOfSongs = playlistLength
-			? playlistLength
-			: dataFromSpotify.total;
+		let totalNumberOfSongs = dataFromSpotify.total;
 
 		let firstSongTitle =
 			firstSongs &&

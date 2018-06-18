@@ -1,10 +1,11 @@
+const WAIT_AFTER_PHASE = 2; // seconds
+
 function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 	let loadingStatus = getInitialLoadingStatus([
 		/* PHASE LIST */
 		/* 0 */ "Getting all of the songs on your playlists...",
 		/* 1 */ "Scanning all of your saved tracks...",
-		/* 2 */ "Loading all of the songs on your friend's public playlists...",
-		/* 3 */ "Finding mutual songs..."
+		/* 2 */ "Loading all of the songs on your friend's public playlists..."
 	]);
 	setLoadingStatus(loadingStatus);
 
@@ -12,7 +13,6 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 		/* Phase 0 */ getThisUsersPlaylistSongs,
 		/* Phase 1 */ getThisUsersSavedTracks,
 		/* Phase 2 */ getFriendsPlaylistSongs
-		/* Phase 3 doesn't have a call to spotify */
 	];
 
 	let phaseSongSets = [];
@@ -21,36 +21,49 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 	// get all of the songs from spotify, phases 0, 1, and 2
 	for (let i in phases) {
 		let phaseFunction = phases[i];
-		let phaseLoadingStatusFuncs = getPhaseLoadingStatusFuncs(
+		let loading = getPhaseLoadingStatusFuncs(
 			i,
 			loadingStatus,
 			setLoadingStatus
 		);
 
+		let status = loading.get();
+
 		promise = promise
+			.then(() => {
+				// show the loading bar
+				status.isActive = true;
+				loading.update();
+			})
 			.then(() =>
 				// run this phase's call to spotify
-				phaseFunction(spotifyApi, phaseLoadingStatusFuncs, friendsUserID)
+				phaseFunction(spotifyApi, loading, friendsUserID)
 			)
 			.then(songsFromSpotify => {
 				// then, take the songs from the call and save them here
 				phaseSongSets.push(songsFromSpotify);
+
+				/* sometimes the number of songs we were expecting to get won't match the number of songs that we actually get. so this makes sure the loading bar is at 100% in that scenario */
+				status.songsTotal = status.songsSoFar;
+				status.subtitle = "Complete!";
+				loading.update();
+			})
+			.then(
+				// wait to make the UI feel more fluid
+				wait(WAIT_AFTER_PHASE)
+			)
+			.then(songsFromSpotify => {
+				// hide the loading bar
+				status.isActive = false;
+				status.isDone = true;
+				loading.update();
 			});
 	}
+
 	return promise.then(() => {
 		/* PHASE 3 */
 		/* find the mutual songs */
-
-		let loading = getPhaseLoadingStatusFuncs(
-			3,
-			loadingStatus,
-			setLoadingStatus
-		);
-		let status = loading.get();
-
-		status.isActive = true;
-		status.noBar = true;
-		loading.update();
+		/* phase 3 stuff happens too fast for the loading bar to matter, so we don't call it here */
 
 		let playlistSongSet = phaseSongSets[0];
 		let savedSongSet = phaseSongSets[1];
@@ -59,18 +72,8 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 		// combine all of the songs into one set
 		let thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
 
-		// set the loading bar to halfway
-		// (phase 3 stuff happens so fast this doesn't even have time to render)
-		status.progress = 50;
-		loading.update();
-
 		// find the mutual songs
 		let mutualSet = getMutualSet(thisUsersSongsSet, friendsSongsSet);
-
-		status.isDone = true;
-		status.isActive = false;
-		status.progress = 100;
-		loading.update();
 
 		return mutualSet;
 	});
@@ -86,9 +89,6 @@ function getFriendsPlaylistSongs(spotifyApi, loading, userIDofFriend) {
 
 function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 	let status = loading.get();
-
-	status.isActive = true;
-	loading.update();
 
 	return spotifyApi
 		.getUserPlaylists(otherUserID)
@@ -112,6 +112,8 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 						status.subtitle = "Checking " + pl.name;
 						loading.update();
 
+						// called everytime a batch of new songs comes in from spotify.
+						// updates the loading bar.
 						let progress = numNewlyCompletedSongs => {
 							status.songsSoFar += numNewlyCompletedSongs;
 							loading.update();
@@ -125,13 +127,7 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 						concatSets(totalSet, plSet);
 					});
 			}
-			return nextPromise.then(() => {
-				status.isActive = false;
-				status.isDone = true;
-				loading.update();
-
-				return totalSet;
-			});
+			return nextPromise.then(() => totalSet);
 		});
 }
 
@@ -147,9 +143,8 @@ function getSongsOfPlaylist(userId, playlistId, spotifyApi, progress) {
 function getThisUsersSavedTracks(spotifyApi, loading) {
 	let status = loading.get();
 
-	status.isActive = true;
-	loading.update();
-
+	// called everytime a batch of new songs comes in from spotify.
+	// updates the loading bar.
 	let progress = (numNewlyCompletedSongs, numTotalSongs, lastSongTitle) => {
 		if (status.songsSoFar === -1) status.songsSoFar = 0;
 
@@ -168,13 +163,7 @@ function getThisUsersSavedTracks(spotifyApi, loading) {
 		options => spotifyApi.getMySavedTracks(options),
 		50,
 		progress
-	).then(passthrough => {
-		status.isActive = false;
-		status.isDone = true;
-		loading.update();
-
-		return passthrough;
-	});
+	).then(passthrough => passthrough);
 }
 
 function getTrackSet(trackApiCall, limit, progress) {
@@ -189,13 +178,16 @@ function getTrackSet(trackApiCall, limit, progress) {
 
 		let totalNumberOfSongs = dataFromSpotify.total;
 
-		let firstSongTitle =
+		// this is me singing Wish You Were Here to Lodash
+		let firstSongNameValid =
 			firstSongs &&
 			firstSongs[0] &&
 			firstSongs[0].track &&
-			firstSongs[0].track.name
-				? firstSongs[0].track.name
-				: "";
+			firstSongs[0].track.name;
+
+		let firstSongTitle = firstSongNameValid
+			? firstSongs[0].track.name
+			: "songs";
 		progress(firstSongs.length, totalNumberOfSongs, firstSongTitle);
 
 		// if we were able to get all of the songs already, because

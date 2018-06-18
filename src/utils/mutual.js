@@ -8,77 +8,79 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 	]);
 	setLoadingStatus(loadingStatus);
 
-	// get all of the songs from spotify, and find the mutuals
-	let playlistSongSet, savedSongSet, thisUsersSongsSet, friendsSongsSet;
+	let phases = [
+		/* Phase 0 */ getThisUsersPlaylistSongs,
+		/* Phase 1 */ getThisUsersSavedTracks,
+		/* Phase 2 */ getFriendsPlaylistSongs
+		/* Phase 3 doesn't have a call to spotify */
+	];
+
+	let phaseSongSets = [];
 	let promise = Promise.resolve();
-	return promise
-		.then(() =>
-			/* PHASE 0 */
-			getThisUsersPlaylistSongs(
-				spotifyApi,
-				getPhaseLoadingStatusFuncs(0, loadingStatus, setLoadingStatus)
+
+	// get all of the songs from spotify, phases 0, 1, and 2
+	for (let i in phases) {
+		let phaseFunction = phases[i];
+		let phaseLoadingStatusFuncs = getPhaseLoadingStatusFuncs(
+			i,
+			loadingStatus,
+			setLoadingStatus
+		);
+
+		promise = promise
+			.then(() =>
+				// run this phase's call to spotify
+				phaseFunction(spotifyApi, phaseLoadingStatusFuncs, friendsUserID)
 			)
-		)
-		.then(songsFromSpotify => {
-			playlistSongSet = songsFromSpotify;
-		})
-		.then(() =>
-			/* PHASE 1 */
-			getThisUsersSavedTracks(
-				spotifyApi,
-				getPhaseLoadingStatusFuncs(1, loadingStatus, setLoadingStatus)
-			)
-		)
-		.then(songsFromSpotify => {
-			savedSongSet = songsFromSpotify;
-		})
-		.then(() =>
-			/* PHASE 2 */
-			getFriendsPlaylistSongs(
-				spotifyApi,
-				friendsUserID,
-				getPhaseLoadingStatusFuncs(2, loadingStatus, setLoadingStatus)
-			)
-		)
-		.then(songsFromSpotify => {
-			friendsSongsSet = songsFromSpotify;
-		})
-		.then(data => {
-			/* PHASE 3 */
-			let loading = getPhaseLoadingStatusFuncs(
-				3,
-				loadingStatus,
-				setLoadingStatus
-			);
-			let status = loading.get();
+			.then(songsFromSpotify => {
+				// then, take the songs from the call and save them here
+				phaseSongSets.push(songsFromSpotify);
+			});
+	}
+	return promise.then(() => {
+		/* PHASE 3 */
+		/* find the mutual songs */
 
-			status.isActive = true;
-			status.noBar = true;
-			loading.update();
+		let loading = getPhaseLoadingStatusFuncs(
+			3,
+			loadingStatus,
+			setLoadingStatus
+		);
+		let status = loading.get();
 
-			// combine all of the songs into one set
-			thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
+		status.isActive = true;
+		status.noBar = true;
+		loading.update();
 
-			status.progress = 50;
-			loading.update();
+		let playlistSongSet = phaseSongSets[0];
+		let savedSongSet = phaseSongSets[1];
+		let friendsSongsSet = phaseSongSets[2];
 
-			// find the mutual songs
-			let mutualSet = getMutualSet(thisUsersSongsSet, friendsSongsSet);
+		// combine all of the songs into one set
+		let thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
 
-			status.isDone = true;
-			status.isActive = false;
-			status.progress = 100;
-			loading.update();
+		// set the loading bar to halfway
+		// (phase 3 stuff happens so fast this doesn't even have time to render)
+		status.progress = 50;
+		loading.update();
 
-			return mutualSet;
-		});
+		// find the mutual songs
+		let mutualSet = getMutualSet(thisUsersSongsSet, friendsSongsSet);
+
+		status.isDone = true;
+		status.isActive = false;
+		status.progress = 100;
+		loading.update();
+
+		return mutualSet;
+	});
 }
 
 function getThisUsersPlaylistSongs(spotifyApi, loading) {
 	return getPlaylistSongsByUserID(spotifyApi, null, loading);
 }
 
-function getFriendsPlaylistSongs(spotifyApi, userIDofFriend, loading) {
+function getFriendsPlaylistSongs(spotifyApi, loading, userIDofFriend) {
 	return getPlaylistSongsByUserID(spotifyApi, userIDofFriend, loading);
 }
 
@@ -302,6 +304,15 @@ function getTotalNumberOfSongs(playlists) {
 		count += pl.tracks.total;
 	}
 	return count;
+}
+
+function wait(seconds) {
+	// sorry it looks complicated... it just waits.
+	// that's it. pinky swear.
+	// https://stackoverflow.com/a/42529585
+	return () => {
+		return new Promise(resolve => setTimeout(() => resolve(), seconds * 1000));
+	};
 }
 
 module.exports = { getListOfMutualSongs, addSongsToPlaylist };

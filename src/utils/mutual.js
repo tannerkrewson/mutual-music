@@ -90,9 +90,8 @@ function getFriendsPlaylistSongs(spotifyApi, loading, userIDofFriend) {
 function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 	let status = loading.get();
 
-	return spotifyApi
-		.getUserPlaylists(otherUserID)
-		.then(function(dataFromSpotify) {
+	return spotifyApi.getUserPlaylists(otherUserID).then(
+		function(dataFromSpotify) {
 			let totalSet = new Set();
 			let nextPromise = Promise.resolve();
 			let allPlaylists = dataFromSpotify.items;
@@ -129,7 +128,12 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 					});
 			}
 			return nextPromise.then(() => totalSet);
-		});
+		},
+		err => {
+			// retry the same call to spotify if it fails
+			return getPlaylistSongsByUserID(spotifyApi, otherUserID, loading);
+		}
+	);
 }
 
 function getSongsOfPlaylist(userId, playlistId, spotifyApi, progress) {
@@ -171,47 +175,61 @@ function getTrackSet(trackApiCall, limit, progress) {
 	// get them once first, to get the total,
 	// then make the required number of requests
 	// to reach that total
-	return trackApiCall({ limit }).then(dataFromSpotify => {
-		let songs = new Set();
+	return trackApiCall({ limit }).then(
+		dataFromSpotify => {
+			let songs = new Set();
 
-		let firstSongs = dataFromSpotify.items;
-		addSongsToSet(songs, firstSongs);
+			let firstSongs = dataFromSpotify.items;
+			addSongsToSet(songs, firstSongs);
 
-		let totalNumberOfSongs = dataFromSpotify.total;
+			let totalNumberOfSongs = dataFromSpotify.total;
 
-		progress(
-			firstSongs.length,
-			totalNumberOfSongs,
-			getFirstSongTitle(firstSongs)
-		);
+			progress(
+				firstSongs.length,
+				totalNumberOfSongs,
+				getFirstSongTitle(firstSongs)
+			);
 
-		// if we were able to get all of the songs already, because
-		// the the number of songs was less than the limit for one
-		// request
-		if (totalNumberOfSongs <= limit) return songs;
+			// if we were able to get all of the songs already, because
+			// the the number of songs was less than the limit for one
+			// request
+			if (totalNumberOfSongs <= limit) return songs;
 
-		let nextPromise = Promise.resolve();
+			let nextPromise = Promise.resolve();
 
-		for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
-			nextPromise = nextPromise
-				.then(() => {
-					return trackApiCall({ offset, limit });
-				})
-				.then(data => {
-					let newSongs = data.items;
-					addSongsToSet(songs, newSongs);
+			for (let offset = limit; offset < totalNumberOfSongs; offset += limit) {
+				nextPromise = nextPromise.then(() =>
+					makeTheCall(offset, songs, totalNumberOfSongs)
+				);
+			}
 
-					// increase the progress bar with the number of songs that came through in this call
-					progress(
-						newSongs.length,
-						totalNumberOfSongs,
-						getFirstSongTitle(newSongs)
-					);
-				});
+			return nextPromise.then(() => songs);
+		},
+		err => {
+			// retry the same call to spotify if it fails
+			return getTrackSet(trackApiCall, limit, progress);
 		}
+	);
 
-		return nextPromise.then(() => songs);
-	});
+	function makeTheCall(offset, songs, totalNumberOfSongs) {
+		return trackApiCall({ offset, limit }).then(
+			data => {
+				let newSongs = data.items;
+				addSongsToSet(songs, newSongs);
+
+				// increase the progress bar with the number of songs that came through in this call
+				progress(
+					newSongs.length,
+					totalNumberOfSongs,
+					getFirstSongTitle(newSongs)
+				);
+			},
+			err => {
+				// retry the same call to spotify if it fails
+				return makeTheCall(offset, songs, totalNumberOfSongs);
+			}
+		);
+	}
 
 	function addSongsToSet(songsSet, newSongs) {
 		for (let song of newSongs) {

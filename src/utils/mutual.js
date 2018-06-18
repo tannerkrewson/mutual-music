@@ -3,9 +3,9 @@ const WAIT_AFTER_PHASE = 2; // seconds
 function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 	let loadingStatus = getInitialLoadingStatus([
 		/* PHASE LIST */
-		/* 0 */ "Getting all of the songs on your playlists...",
+		/* 0 */ "Looking at your first 20 playlists...",
 		/* 1 */ "Scanning all of your saved tracks...",
-		/* 2 */ "Loading all of the songs on your friend's public playlists..."
+		/* 2 */ "Loading your friend's first 20 public playlists..."
 	]);
 	setLoadingStatus(loadingStatus);
 
@@ -98,6 +98,7 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading) {
 			let allPlaylists = dataFromSpotify.items;
 
 			let numPlaylists = allPlaylists.length;
+
 			let numSongsInAllPlaylists = getTotalNumberOfSongs(allPlaylists);
 
 			status.songsSoFar = 0;

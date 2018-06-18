@@ -73,6 +73,7 @@ class PlaylistResult extends Component {
 						</EmailShareButton>
 					</div>
 				</div>
+				<br />
 				<div style={butGroup}>
 					<button
 						type="button"

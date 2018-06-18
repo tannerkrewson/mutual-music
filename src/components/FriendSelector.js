@@ -26,7 +26,7 @@ class FriendSelector extends Component {
 	render() {
 		return (
 			<form onSubmit={this.handleChange}>
-				<label>Copy and paste your friend's Spotify profile link here: </label>
+				<label>Copy and paste a friend's Spotify profile link here: </label>
 				<div className="input-group mb-3">
 					<input
 						type="text"

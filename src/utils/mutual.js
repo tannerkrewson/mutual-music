@@ -258,14 +258,14 @@ function getMutualSet(set1, set2) {
 }
 
 function addSongsToPlaylist(userId, playlistId, songList, spotifyApi) {
-	var promiseList = [];
-	for (var offset = 0; offset < songList.length; offset += 100) {
-		var songsToAdd = songList.slice(offset, offset + 100);
-		promiseList.push(
+	let nextPromise = Promise.resolve();
+	for (let offset = 0; offset < songList.length; offset += 100) {
+		let songsToAdd = songList.slice(offset, offset + 100);
+		nextPromise = nextPromise.then(() =>
 			spotifyApi.addTracksToPlaylist(userId, playlistId, songsToAdd)
 		);
 	}
-	return Promise.all(promiseList);
+	return nextPromise;
 }
 
 function getInitialLoadingStatus(statusList) {

@@ -11,7 +11,7 @@ class Header extends Component {
 		var subtitleClasses = "lead ";
 		var titleClasses = "h1 ";
 		if (this.props.isLoggedIn) {
-			subtitleClasses += "d-none d-sm-block ";
+			subtitleClasses += "d-none ";
 		}
 		return (
 			<header>

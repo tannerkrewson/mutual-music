@@ -174,7 +174,7 @@ class App extends Component {
 						<footer>
 							Mutual Music by{" "}
 							<a
-								href="http://www.tannerkrewson.com/"
+								href="https://www.tannerkrewson.com/"
 								target="_blank"
 								rel="noopener noreferrer"
 							>

@@ -1,30 +1,50 @@
 const WAIT_AFTER_PHASE = 2; // seconds
 const WAIT_TO_RETRY = 2; // seconds
 const REQUEST_MAX_RETRIES = 8;
+const CACHE_EXPIRATION = 24; // hours
 
 function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
-	let loadingStatus = getInitialLoadingStatus([
-		/* PHASE LIST */
-		/* 0 */ "Looking at your first 20 playlists...",
-		/* 1 */ "Scanning all of your saved tracks...",
-		/* 2 */ "Loading your friend's first 20 public playlists..."
-	]);
+	let cacheIsAvailible = isCacheAvailable();
+
+	let phaseTitles = [];
+	let phaseCalls = [];
+
+	if (cacheIsAvailible) {
+		// if the cache is avaible, no need to ask spotify for this user's songs again
+		phaseTitles.push("Loading your songs from this browser's cache...");
+		phaseCalls.push(getThisUsersCachedSongs);
+	} else {
+		// if there's no cache, get all of this user's songs from spotify
+		// we'll cache them in the post phase
+		phaseTitles.push("Looking at your first 20 playlists...");
+		phaseCalls.push(getThisUsersPlaylistSongs);
+
+		phaseTitles.push("Scanning all of your saved tracks...");
+		phaseCalls.push(getThisUsersSavedTracks);
+	}
+
+	// last phase is always getting friend's songs
+	// we never cache those
+	phaseTitles.push("Loading your friend's first 20 public playlists...");
+	phaseCalls.push(getFriendsPlaylistSongs);
+
+	// generates the loading status info that will be sent to the
+	// react component to make the loading bars move
+	let loadingStatus = getInitialLoadingStatus(phaseTitles);
 	setLoadingStatus(loadingStatus);
 
+	// a "global" value shared between all phaseCalls to
+	// keep track of how many more times we will put up with
+	// API calls to spotify failing before giving the user
+	// a nice error message.
 	let retries = { left: REQUEST_MAX_RETRIES };
-
-	let phases = [
-		/* Phase 0 */ getThisUsersPlaylistSongs,
-		/* Phase 1 */ getThisUsersSavedTracks,
-		/* Phase 2 */ getFriendsPlaylistSongs
-	];
 
 	let phaseSongSets = [];
 	let promise = Promise.resolve();
 
 	// get all of the songs from spotify, phases 0, 1, and 2
-	for (let i in phases) {
-		let phaseFunction = phases[i];
+	for (let i in phaseCalls) {
+		let phaseFunction = phaseCalls[i];
 		let loading = getPhaseLoadingStatusFuncs(
 			i,
 			loadingStatus,
@@ -65,16 +85,31 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 	}
 
 	return promise.then(() => {
-		/* PHASE 3 */
+		/* POST PHASE */
 		/* find the mutual songs */
-		/* phase 3 stuff happens too fast for the loading bar to matter, so we don't call it here */
+		/* this stuff happens too fast for the loading bar to matter, so we don't call it here */
 
-		let playlistSongSet = phaseSongSets[0];
-		let savedSongSet = phaseSongSets[1];
-		let friendsSongsSet = phaseSongSets[2];
+		let thisUsersSongsSet, friendsSongsSet;
 
-		// combine all of the songs into one set
-		let thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
+		// if the cache was used, the number of phases will be different
+		if (cacheIsAvailible) {
+			// when cache is used, phase 0 is getting the songs from the cache,
+			// and phase 1 is getting the friend's songs normally
+			thisUsersSongsSet = phaseSongSets[0];
+
+			friendsSongsSet = phaseSongSets[1];
+		} else {
+			let playlistSongSet = phaseSongSets[0];
+			let savedSongSet = phaseSongSets[1];
+
+			// combine all of this users songs into one set
+			thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
+
+			// if the cache is empty, let's fill it up
+			if (!cacheIsAvailible) cacheThisUsersSongs(thisUsersSongsSet);
+
+			friendsSongsSet = phaseSongSets[2];
+		}
 
 		// find the mutual songs
 		let mutualSet = getMutualSet(thisUsersSongsSet, friendsSongsSet);
@@ -302,8 +337,6 @@ function addSongsToPlaylist(userId, playlistId, songList, spotifyApi) {
 }
 
 function handleRequestFail(retries, err, next) {
-	console.log(retries.left);
-
 	retries.left--;
 
 	// if we're out of request retries, show an error to the user
@@ -349,6 +382,45 @@ function getTotalNumberOfSongs(playlists) {
 		count += pl.tracks.total;
 	}
 	return count;
+}
+
+function getThisUsersCachedSongs() {
+	let arr = JSON.parse(localStorage.getItem("cache"));
+	let setOfSongsFromCache = new Set(arr);
+	return Promise.resolve().then(() => setOfSongsFromCache);
+}
+
+function cacheThisUsersSongs(songsToCache) {
+	let status = {
+		creationDate: Date.now()
+	};
+
+	// https://stackoverflow.com/a/31190928
+	localStorage.setItem("cacheStatus", JSON.stringify(status));
+	localStorage.setItem("cache", JSON.stringify([...songsToCache]));
+}
+
+function emptyCache() {
+	localStorage.removeItem("cacheStatus");
+	localStorage.removeItem("cache");
+}
+
+function isCacheAvailable() {
+	let cacheExpiration = CACHE_EXPIRATION * 60 * 60 * 1000; // ms
+
+	let cacheStatus = JSON.parse(localStorage.getItem("cacheStatus"));
+
+	// if cache does not exist
+	if (!cacheStatus) return false;
+
+	// true if the date the cache goes stale is in the future
+	let cacheIsFresh =
+		new Date(cacheStatus.creationDate + cacheExpiration) > Date.now();
+
+	// if cache isn't fresh, delete the stale cache
+	if (!cacheIsFresh) emptyCache();
+
+	return cacheIsFresh;
 }
 
 function wait(seconds) {

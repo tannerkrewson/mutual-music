@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Header from "./components/Header";
+import Instructions from "./components/Instructions";
 import FriendSelector from "./components/FriendSelector";
 import TwoFriends from "./components/TwoFriends";
 import Generator from "./components/Generator";
@@ -32,7 +33,8 @@ class App extends Component {
 			spotify: spotifyApi,
 			isLoggedIn: !!spotifyHash,
 			isLoading: false,
-			loadingStatus: {}
+			loadingStatus: {},
+			hasReadInstructions: false
 		};
 	}
 	onFriendSelected(userID) {
@@ -120,9 +122,16 @@ class App extends Component {
 	setLoadingStatus(loadingStatus) {
 		this.setState({ loadingStatus });
 	}
+	onInstructionsRead() {
+		this.setState({
+			hasReadInstructions: true
+		});
+	}
 	render() {
 		let showLogin = !this.state.isLoggedIn;
-		let showFriendSelector = this.state.isLoggedIn && !this.state.friend;
+		let showInstructions = !showLogin && !this.state.hasReadInstructions;
+		let showFriendSelector =
+			!showInstructions && this.state.isLoggedIn && !this.state.friend;
 		let showPlaylistResult = !!this.state.playlistResult;
 		let showMutualCount =
 			!showFriendSelector && !showPlaylistResult && this.state.countResult;
@@ -130,6 +139,7 @@ class App extends Component {
 
 		let showError =
 			!showLogin &&
+			!showInstructions &&
 			!showFriendSelector &&
 			!showPlaylistResult &&
 			!showMutualCount &&
@@ -143,6 +153,11 @@ class App extends Component {
 						{showLogin && <SpotifyLogin />}
 						{this.state.isLoggedIn && (
 							<TwoFriends user={this.state.user} friend={this.state.friend} />
+						)}
+						{showInstructions && (
+							<Instructions
+								onInstructionsRead={this.onInstructionsRead.bind(this)}
+							/>
 						)}
 						{showFriendSelector && (
 							<FriendSelector

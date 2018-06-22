@@ -10,12 +10,14 @@ const icon = {
 const user = {
 	textAlign: "center",
 	display: "inline-block",
-	padding: "16px"
+	padding: "16px",
+	height: "100px",
+	width: "128px"
 };
 
 class SpotifyUser extends Component {
 	render() {
-		let firstName = "";
+		let firstName = " ";
 		let imageUrl;
 		if (this.props.user) {
 			if (this.props.user.display_name) {

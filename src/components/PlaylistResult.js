@@ -18,11 +18,6 @@ const css = {
 	paddingBottom: "24px"
 };
 
-const butGroup = {
-	textAlign: "center",
-	paddingTop: "12px"
-};
-
 const icon = {
 	background: "white",
 	borderRadius: "6px",
@@ -32,10 +27,10 @@ const icon = {
 class PlaylistResult extends Component {
 	render() {
 		return (
-			<div style={css}>
+			<div className="content">
 				<h3>Playlist created!</h3>
 				<p>You can find it at the top of your Spotify playlists.</p>
-				<div style={butGroup}>
+				<div className="btn-container">
 					<Clipboard
 						type="button"
 						className="btn btn-info"
@@ -57,7 +52,7 @@ class PlaylistResult extends Component {
 						</button>
 					</a>
 				</div>
-				<div style={butGroup}>
+				<div className="btn-container">
 					<div className="btn-group mr-2" role="group">
 						<FacebookShareButton url={this.props.playlistResult}>
 							<FaFacebookSquare style={icon} size={38} color="#3b5998" />
@@ -74,7 +69,7 @@ class PlaylistResult extends Component {
 					</div>
 				</div>
 				<br />
-				<div style={butGroup}>
+				<div className="btn-container">
 					<button
 						type="button"
 						className="btn btn-success"

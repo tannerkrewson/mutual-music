@@ -2,12 +2,6 @@ import React, { Component } from "react";
 
 import LoadingPhase from "./LoadingPhase";
 
-const cssCenter = {
-	textAlign: "center",
-	paddingTop: "16px",
-	paddingBottom: "24px"
-};
-
 class Loading extends Component {
 	render() {
 		let status = this.props.status;
@@ -30,7 +24,7 @@ class Loading extends Component {
 				);
 			}
 		}
-		return <div style={cssCenter}>{phases}</div>;
+		return <div className="content">{phases}</div>;
 	}
 }
 

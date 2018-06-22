@@ -3,6 +3,7 @@ body {
 	padding: 0;
 	font-family: sans-serif;
 	font-family: "Lato", sans-serif;
+	text-align: center;
 }
 
 .gradient-background {
@@ -50,7 +51,6 @@ a {
 		margin: 5% auto auto auto;
 		border-radius: 30px;
 		padding: 36px;
-		padding-top: 48px;
 		padding-bottom: 32px;
 	}
 	.App::after {
@@ -68,7 +68,6 @@ a {
 
 footer {
 	font-size: 14px;
-	text-align: center;
 }
 
 span.avoidwrap {
@@ -78,4 +77,27 @@ span.avoidwrap {
 .instructions img {
 	max-width: 100%;
 	max-height: 100%;
+}
+
+.content {
+	padding-top: 16px;
+	padding-bottom: 24px;
+}
+
+.btn-container {
+	padding-top: 12px;
+}
+
+.btn {
+	margin: 0.25rem;
+}
+
+.title {
+	font-weight: bolder;
+	margin-bottom: 0px;
+}
+
+.subtitle {
+	max-width: 300px;
+	margin: 18px auto 0px;
 }

@@ -1,20 +1,5 @@
 import React, { Component } from "react";
 
-const cssCenter = {
-	textAlign: "center",
-	paddingTop: "16px",
-	paddingBottom: "24px"
-};
-
-const butGroup = {
-	textAlign: "center",
-	paddingTop: "12px"
-};
-
-const but = {
-	margin: ".25rem"
-};
-
 class Generator extends Component {
 	render() {
 		var countString;
@@ -26,14 +11,13 @@ class Generator extends Component {
 			countString = "You have " + this.props.countResult + " mutual songs!";
 		}
 		return (
-			<div style={cssCenter}>
+			<div className="content">
 				<h3>{countString}</h3>
-				<div style={butGroup}>
+				<div className="btn-container">
 					<button
 						type="button"
 						className="btn btn-secondary"
 						onClick={this.props.onReset}
-						style={but}
 					>
 						Back
 					</button>
@@ -42,7 +26,6 @@ class Generator extends Component {
 							type="button"
 							className="btn btn-success"
 							onClick={this.props.onMakePlaylist}
-							style={but}
 						>
 							Make a Playlist
 						</button>

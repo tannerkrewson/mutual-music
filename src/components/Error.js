@@ -1,15 +1,9 @@
 import React, { Component } from "react";
 
-const cssCenter = {
-	textAlign: "center",
-	paddingTop: "16px",
-	paddingBottom: "24px"
-};
-
 class Error extends Component {
 	render() {
 		return (
-			<div style={cssCenter}>
+			<div className="content">
 				<h4>Error!</h4>
 				<p>{this.props.reason}</p>
 				<button

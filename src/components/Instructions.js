@@ -28,11 +28,16 @@ class Instructions extends Component {
 			step: this.state.step + 1
 		});
 	}
+	switchInstructions() {
+		this.setState({
+			showMobile: !this.state.showMobile
+		});
+	}
 	render() {
 		return (
 			<div className="content instructions">
 				<h5>Pick a friend and copy their Spotify link.</h5>
-				{this.isMobile && (
+				{this.state.showMobile && (
 					<div className="instruction-container">
 						<div style={{ height: "30vh", lineHeight: "30vh" }}>
 							<img src={"/mobile_" + this.state.step + ".jpg"} />
@@ -42,7 +47,7 @@ class Instructions extends Component {
 						</div>
 					</div>
 				)}
-				{!this.isMobile && (
+				{!this.state.showMobile && (
 					<div
 						className="instruction-container"
 						style={{ marginBottom: "16px" }}
@@ -80,7 +85,12 @@ class Instructions extends Component {
 					</button>
 				)}
 				<br />
-				<button type="button" className="btn btn-secondary">
+				<button
+					type="button"
+					className="btn btn-secondary"
+					onClick={this.switchInstructions.bind(this)}
+					style={{ marginTop: "10px" }}
+				>
 					How do I do it on {this.state.showMobile ? "desktop" : "mobile"}?
 				</button>
 			</div>

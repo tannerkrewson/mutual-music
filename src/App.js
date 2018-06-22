@@ -151,9 +151,10 @@ class App extends Component {
 					<div className="col-md-12">
 						<Header isLoggedIn={this.state.isLoggedIn} />
 						{showLogin && <SpotifyLogin />}
-						{this.state.isLoggedIn && (
-							<TwoFriends user={this.state.user} friend={this.state.friend} />
-						)}
+						{this.state.isLoggedIn &&
+							!showInstructions && (
+								<TwoFriends user={this.state.user} friend={this.state.friend} />
+							)}
 						{showInstructions && (
 							<Instructions
 								onInstructionsRead={this.onInstructionsRead.bind(this)}

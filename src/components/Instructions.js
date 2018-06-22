@@ -1,5 +1,12 @@
 import React, { Component } from "react";
 
+const instructions = [
+	"Open the Spotify app and search for your friend.",
+	"Tap the three dots as shown.",
+	"Tap Share.",
+	"Finally, tap on Copy Link."
+];
+
 class Instructions extends Component {
 	constructor(props) {
 		super(props);
@@ -24,21 +31,19 @@ class Instructions extends Component {
 	render() {
 		return (
 			<div className="instructions">
-				<h4>First, copy your friends Spotify profile link.</h4>
-				<div style={{ fontSize: "8px" }}>
-					I would give you a list of your friends to select from, but Spotify
-					won't let me. 😡
-				</div>
+				<h5>Pick a friend and copy their Spotify link.</h5>
 				{this.isMobile && (
-					<div>
-						<div>Step {this.state.step}: </div>
-						<div style={{ height: "375px" }}>
+					<div className="instruction-container">
+						<div style={{ height: "30vh", lineHeight: "30vh" }}>
 							<img src={"/mobile_" + this.state.step + ".jpg"} />
+						</div>
+						<div style={{ height: "3em", margin: "8px" }}>
+							Step {this.state.step}: {instructions[this.state.step - 1]}
 						</div>
 					</div>
 				)}
 				{!this.isMobile && (
-					<div>
+					<div className="instruction-container">
 						<img src="/desktop.gif" />
 					</div>
 				)}
@@ -49,7 +54,7 @@ class Instructions extends Component {
 							className="btn btn-secondary"
 							onClick={this.onClickBack.bind(this)}
 						>
-							&lt;= Back
+							Back
 						</button>
 					)}
 				{this.state.step < 4 &&
@@ -59,7 +64,7 @@ class Instructions extends Component {
 							className="btn btn-success"
 							onClick={this.onClickStep.bind(this)}
 						>
-							Next =&gt;
+							Next
 						</button>
 					)}
 				{(this.state.step === 4 || !this.state.showMobile) && (

@@ -13,11 +13,6 @@ import {
 	EmailShareButton
 } from "react-share";
 
-const css = {
-	paddingTop: "16px",
-	paddingBottom: "24px"
-};
-
 const icon = {
 	background: "white",
 	borderRadius: "6px",

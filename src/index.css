@@ -47,6 +47,22 @@ a {
 }
 
 @media (min-width: 496px) {
+	@keyframes twist {
+		from {
+			transform: rotate(0deg);
+			top: 1px;
+			bottom: 1px;
+			left: 1px;
+			right: 1px;
+		}
+		to {
+			transform: rotate(1deg);
+			top: -12px;
+			bottom: -12px;
+			left: -12px;
+			right: -12px;
+		}
+	}
 	.App {
 		margin: 5% auto auto auto;
 		border-radius: 30px;
@@ -55,9 +71,12 @@ a {
 	}
 	.App::after {
 		border-radius: 32px;
-		transform: rotate(1deg);
 		left: -12px;
 		right: -12px;
+		transform: rotate(1deg);
+		animation-name: twist;
+		animation-duration: 1s;
+		animation-iteration-count: 1;
 	}
 }
 

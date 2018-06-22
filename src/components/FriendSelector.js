@@ -36,6 +36,13 @@ class FriendSelector extends Component {
 						onChange={this.handleChange}
 					/>
 				</div>
+				<button
+					type="button"
+					className="btn btn-secondary"
+					onClick={this.props.back}
+				>
+					Back to Instructions
+				</button>
 			</form>
 		);
 	}

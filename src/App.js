@@ -127,6 +127,11 @@ class App extends Component {
 			hasReadInstructions: true
 		});
 	}
+	backToInstructions() {
+		this.setState({
+			hasReadInstructions: false
+		});
+	}
 	render() {
 		let showLogin = !this.state.isLoggedIn;
 		let showInstructions = !showLogin && !this.state.hasReadInstructions;
@@ -164,6 +169,7 @@ class App extends Component {
 							<FriendSelector
 								onValidUserId={this.onFriendSelected.bind(this)}
 								selectedUser={this.state.friend}
+								back={this.backToInstructions.bind(this)}
 							/>
 						)}
 						{showMutualCount && (

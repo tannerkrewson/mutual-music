@@ -30,7 +30,7 @@ class Instructions extends Component {
 	}
 	render() {
 		return (
-			<div className="instructions">
+			<div className="content instructions">
 				<h5>Pick a friend and copy their Spotify link.</h5>
 				{this.isMobile && (
 					<div className="instruction-container">
@@ -43,7 +43,10 @@ class Instructions extends Component {
 					</div>
 				)}
 				{!this.isMobile && (
-					<div className="instruction-container">
+					<div
+						className="instruction-container"
+						style={{ marginBottom: "16px" }}
+					>
 						<img src="/desktop.gif" />
 					</div>
 				)}

@@ -5,7 +5,7 @@ const friendsContainer = {
 	display: "flex",
 	justifyContent: "center",
 	alignItems: "center",
-	padding: "12px 0px"
+	paddingTop: "12px"
 };
 
 class TwoFriends extends Component {

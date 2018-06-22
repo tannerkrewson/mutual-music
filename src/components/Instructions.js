@@ -40,7 +40,11 @@ class Instructions extends Component {
 				{this.state.showMobile && (
 					<div className="instruction-container">
 						<div style={{ height: "30vh", lineHeight: "30vh" }}>
-							<img src={"/mobile_" + this.state.step + ".jpg"} />
+							<img
+								src={
+									window.location.origin + "/mobile_" + this.state.step + ".jpg"
+								}
+							/>
 						</div>
 						<div style={{ height: "3em", margin: "8px" }}>
 							Step {this.state.step}: {instructions[this.state.step - 1]}
@@ -52,7 +56,7 @@ class Instructions extends Component {
 						className="instruction-container"
 						style={{ marginBottom: "16px" }}
 					>
-						<img src="/desktop.gif" />
+						<img src={window.location.origin + "/desktop.gif"} />
 					</div>
 				)}
 				{this.state.step > 1 &&

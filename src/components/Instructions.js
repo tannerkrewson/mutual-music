@@ -42,7 +42,7 @@ class Instructions extends Component {
 						<div style={{ height: "30vh", lineHeight: "30vh" }}>
 							<img
 								src={
-									window.location.origin + "/mobile_" + this.state.step + ".jpg"
+									window.location.href + "/mobile_" + this.state.step + ".jpg"
 								}
 							/>
 						</div>
@@ -56,7 +56,7 @@ class Instructions extends Component {
 						className="instruction-container"
 						style={{ marginBottom: "16px" }}
 					>
-						<img src={window.location.origin + "/desktop.gif"} />
+						<img src={window.location.href + "/desktop.gif"} />
 					</div>
 				)}
 				{this.state.step > 1 &&

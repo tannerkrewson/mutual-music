@@ -1,3 +1,5 @@
+/* global gtag */
+
 const WAIT_AFTER_PHASE = 2; // seconds
 const WAIT_TO_RETRY = 2; // seconds
 const REQUEST_MAX_RETRIES = 8;
@@ -113,6 +115,26 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 
 		// find the mutual songs
 		let mutualSet = getMutualSet(thisUsersSongsSet, friendsSongsSet);
+
+		gtag("event", "user_songs", {
+			event_label: Math.round(thisUsersSongsSet.size / 100) * 100
+		});
+		gtag("event", "friend_songs", {
+			event_label: Math.round(friendsSongsSet.size / 100) * 100
+		});
+		gtag("event", "mutual_songs", {
+			event_label: Math.round(mutualSet.length / 10) * 10
+		});
+		gtag("event", "total_songs_scanned", {
+			event_label: thisUsersSongsSet.size + friendsSongsSet.size
+		});
+		let smallerListSize = Math.min(
+			thisUsersSongsSet.size,
+			friendsSongsSet.size
+		);
+		gtag("event", "mutual_percent", {
+			event_label: Math.round((mutualSet.length / smallerListSize) * 100)
+		});
 
 		return mutualSet;
 	});

@@ -1,4 +1,7 @@
+/* global gtag */
 import React, { Component } from "react";
+import SpotifyWebAPI from "spotify-web-api-js";
+
 import Header from "./components/Header";
 import Instructions from "./components/Instructions";
 import FriendSelector from "./components/FriendSelector";
@@ -11,7 +14,6 @@ import Error from "./components/Error";
 
 import spotifyUtils from "./utils/spotify";
 import mutual from "./utils/mutual";
-import SpotifyWebAPI from "spotify-web-api-js";
 
 class App extends Component {
 	constructor(props) {
@@ -48,6 +50,7 @@ class App extends Component {
 				});
 				this.findCount();
 			});
+			gtag("event", "friend_selected");
 		}
 	}
 	anotherOne() {
@@ -58,6 +61,7 @@ class App extends Component {
 			playlistResult: null,
 			errorStatus: null
 		});
+		gtag("event", "generate_another");
 	}
 	findCount() {
 		mutual
@@ -83,6 +87,13 @@ class App extends Component {
 						if (errorRes.error && errorRes.error.message) {
 							errorStatus = "Spotify " + errorRes.error.message;
 						}
+						gtag("event", "error_spotify", {
+							event_label: errorRes.error.message
+						});
+					} else {
+						gtag("event", "error_general", {
+							event_label: err
+						});
 					}
 					this.setState({
 						isLoading: false,
@@ -118,6 +129,7 @@ class App extends Component {
 					self.state.spotify
 				);
 			});
+		gtag("event", "create_playlist");
 	}
 	setLoadingStatus(loadingStatus) {
 		this.setState({ loadingStatus });
@@ -131,6 +143,7 @@ class App extends Component {
 		this.setState({
 			hasReadInstructions: false
 		});
+		gtag("event", "back_to_instructions");
 	}
 	render() {
 		let showLogin = !this.state.isLoggedIn;

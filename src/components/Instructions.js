@@ -1,3 +1,4 @@
+/* global gtag */
 import React, { Component } from "react";
 
 const instructions = [
@@ -17,11 +18,16 @@ class Instructions extends Component {
 			step: 1,
 			showMobile: this.isMobile
 		};
+
+		gtag("event", "is_mobile", {
+			event_label: this.isMobile
+		});
 	}
 	onClickBack() {
 		this.setState({
 			step: this.state.step - 1
 		});
+		gtag("event", "instructions_back");
 	}
 	onClickStep() {
 		this.setState({
@@ -29,8 +35,13 @@ class Instructions extends Component {
 		});
 	}
 	switchInstructions() {
+		let previous = this.state.showMobile;
 		this.setState({
-			showMobile: !this.state.showMobile
+			showMobile: !previous
+		});
+
+		gtag("event", "switch_instructions", {
+			event_label: previous ? "mobile_to_desktop" : "desktop_to_mobile"
 		});
 	}
 	render() {

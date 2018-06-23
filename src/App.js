@@ -55,11 +55,11 @@ class App extends Component {
 	}
 	anotherOne() {
 		this.setState({
-			friend: null,
+			friend: undefined,
 			isLoading: false,
-			countResult: null,
-			playlistResult: null,
-			errorStatus: null
+			countResult: undefined,
+			playlistResult: undefined,
+			errorStatus: undefined
 		});
 		gtag("event", "generate_another");
 	}
@@ -152,7 +152,7 @@ class App extends Component {
 			!showInstructions && this.state.isLoggedIn && !this.state.friend;
 		let showPlaylistResult = !!this.state.playlistResult;
 		let showMutualCount =
-			!showFriendSelector && !showPlaylistResult && this.state.countResult;
+			!showFriendSelector && !showPlaylistResult && this.state.countResult >= 0;
 		let showLoading = this.state.isLoading;
 
 		let showError =

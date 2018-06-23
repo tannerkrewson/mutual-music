@@ -6,13 +6,13 @@ const REQUEST_MAX_RETRIES = 8;
 const CACHE_EXPIRATION = 24; // hours
 
 function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
-	let cacheIsAvailible = isCacheAvailable();
+	let cacheIsAvailable = isCacheAvailable();
 
 	let phaseTitles = [];
 	let phaseCalls = [];
 
-	if (cacheIsAvailible) {
-		// if the cache is avaible, no need to ask spotify for this user's songs again
+	if (cacheIsAvailable) {
+		// if the cache is available, no need to ask spotify for this user's songs again
 		phaseTitles.push("Loading your songs from this browser's cache...");
 		phaseCalls.push(getThisUsersCachedSongs);
 	} else {
@@ -78,7 +78,7 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 				// wait to make the UI feel more fluid
 				wait(WAIT_AFTER_PHASE)
 			)
-			.then(songsFromSpotify => {
+			.then(() => {
 				// hide the loading bar
 				status.isActive = false;
 				status.isDone = true;
@@ -94,7 +94,7 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 		let thisUsersSongsSet, friendsSongsSet;
 
 		// if the cache was used, the number of phases will be different
-		if (cacheIsAvailible) {
+		if (cacheIsAvailable) {
 			// when cache is used, phase 0 is getting the songs from the cache,
 			// and phase 1 is getting the friend's songs normally
 			thisUsersSongsSet = phaseSongSets[0];
@@ -108,7 +108,7 @@ function getListOfMutualSongs(spotifyApi, friendsUserID, setLoadingStatus) {
 			thisUsersSongsSet = concatSets(playlistSongSet, savedSongSet);
 
 			// if the cache is empty, let's fill it up
-			if (!cacheIsAvailible) cacheThisUsersSongs(thisUsersSongsSet);
+			if (!cacheIsAvailable) cacheThisUsersSongs(thisUsersSongsSet);
 
 			friendsSongsSet = phaseSongSets[2];
 		}
@@ -173,7 +173,7 @@ function getPlaylistSongsByUserID(spotifyApi, otherUserID, loading, retries) {
 						status.subtitle = "Checking " + pl.name;
 						loading.update();
 
-						// called everytime a batch of new songs comes in from spotify.
+						// called every time a batch of new songs comes in from spotify.
 						// updates the loading bar.
 						let progress = numNewlyCompletedSongs => {
 							status.songsSoFar += numNewlyCompletedSongs;
@@ -223,7 +223,7 @@ function getSongsOfPlaylist(userId, playlistId, spotifyApi, progress, retries) {
 function getThisUsersSavedTracks(spotifyApi, loading, retries) {
 	let status = loading.get();
 
-	// called everytime a batch of new songs comes in from spotify.
+	// called every time a batch of new songs comes in from spotify.
 	// updates the loading bar.
 	let progress = (numNewlyCompletedSongs, numTotalSongs, lastSongTitle) => {
 		if (status.songsSoFar === -1) status.songsSoFar = 0;

@@ -1,7 +1,9 @@
 /* global gtag */
 import React, { Component } from "react";
-import Clipboard from "react-clipboard.js";
 
+import MoreInfo from "./MoreInfo";
+
+import Clipboard from "react-clipboard.js";
 import FaFacebookSquare from "react-icons/lib/fa/facebook-square";
 import FaTwitterSquare from "react-icons/lib/fa/twitter-square";
 import FaEnvelopeSquare from "react-icons/lib/fa/envelope-square";
@@ -108,6 +110,8 @@ class PlaylistResult extends Component {
 						Try it with a different friend
 					</button>
 				</div>
+				<br />
+				<MoreInfo />
 			</div>
 		);
 	}

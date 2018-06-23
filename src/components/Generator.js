@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import MoreInfo from "./MoreInfo";
+
 class Generator extends Component {
 	render() {
 		var countString;
@@ -14,28 +16,12 @@ class Generator extends Component {
 			<div className="content">
 				<h3>{countString}</h3>
 				{this.props.countResult < 20 && (
-					<div style={{ textAlign: "justify" }}>
-						<p>
-							Hmm... that's not very many. I'm sure you have more mutual songs,
-							but maybe your friend doesn't have a lot of songs on their top 20
-							public playlists.
-						</p>
-						<p>
-							If you feel that Mutual Music is inaccurate, read about{" "}
-							<a
-								href="https://github.com/tannerkrewson/mutual-music#mutual-music"
-								target="_blank"
-							>
-								how it works
-							</a>
-							, or try out{" "}
-							<a href="https://www.tannerkrewson.com/sic/" target="_blank">
-								Spotify-in-Common
-							</a>
-							, which finds mutual songs between two or more specific playlists.
-						</p>
-					</div>
+					<p style={{ textAlign: "justify" }}>
+						Hmm... that's not very many. Make sure that you and your friend have
+						lots of your favorites songs saved in your top 20 playlists.
+					</p>
 				)}
+				{this.props.countResult <= 5 && <MoreInfo />}
 				<div className="btn-container">
 					<button
 						type="button"

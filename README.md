@@ -28,12 +28,6 @@ In my first go at implementing this for Mutual Music, I added each of those requ
 
 When I first started making Mutual Music, I imagined that I would get a list of the people you follow on Spotify, and let you pick from them. Unfortunately, [this is not possible](https://github.com/spotify/web-api/issues/4) with the Spotify API. So, you must paste the profile link of the friend directly. The problem with this is that many people don't know how to find someone's Spotify profile link. To circumvent this, I have included visual instructions on how to do this on both mobile and desktop.
 
-### What makes two songs identical
-
-The algorithm compares every song. First, it checks to see if the URI of the songs being compared is identical. However, there are duplicates of the same song with different URIs on Spotify. It is common with compilations, remasters, and explicit/clean versions. So, it also compares the songs by their International Standard Recording Code (ISRC). If that fails, it will proceed to compare the Artist and Title of the songs. It checks to see if the titles of the two songs being the same, so `Bohemian Rhapsody` and `Bohemian Rhapsody - Remastered 2011` will be counted as the same song, as long as they are both by the same artist, in this case, `Queen`.
-
-This could backfire if a single artist has two songs with titles called something like `Game` and `Gameboy`, but I believe the tradeoff of a few false positives is worth the potential for way more false negatives. You can always delete songs from the generated playlist, but if a song is missed, you can never find it.
-
 ### Caching songs
 
 If you want to generate more than one playlist for multiple different friends, Mutual Music caches all of the songs it scans from your library after the first time it runs in the Local Storage in your browser for 24 hours. The makes subsequent playlist generations run much faster, as it only has to scan the friend's songs. It also means less calls to the Spotify API overall.
